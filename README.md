@@ -3,7 +3,8 @@ my own version of foss api
 
 Requires python 3.10
 as it uses latest structural matching case patterms
-
+and a
+config.ini file with below contents
 ```
 [test]
 url = http://fossology-test.com:8080/repo/api/v1/
