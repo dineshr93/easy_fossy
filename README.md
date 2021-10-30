@@ -2,7 +2,7 @@
 my own version of foss api
 
 Requires python 3.10
-
+as it uses latest structural matching case patterms
 
 ```
 [test]
