@@ -39,8 +39,9 @@ group_name = fossy
 ```
 
 ```
-#### 4.  Kickstart straight away [example.py](https://github.com/dineshr93/easy_fossy/blob/master/example.py)
+#### 4.  Kickstart straight away with example.py
 ```
+[example.py](https://github.com/dineshr93/easy_fossy/blob/master/example.py)
 ###   =====================================================================
 
 ### License: MIT
