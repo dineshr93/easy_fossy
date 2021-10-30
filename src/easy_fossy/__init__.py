@@ -1,5 +1,5 @@
 
-from models import (
+from .models import (
     Public,
     Findings,
     ClearingStatus,
@@ -140,7 +140,7 @@ else:
     print('Re using the existing unexpired Token')
 
 bearer_token = config.get('bearer_token')
-# print(bearer_token)
+print(bearer_token)
 
 
 def get_all_jobs(group_name) -> List[Job]:

@@ -1,4 +1,4 @@
-from models import (
+from easy_fossy import (
     Public,
     Findings,
     ClearingStatus,
@@ -37,7 +37,7 @@ from models import (
     User,
     ReportFormat
 )
-from fossy import (
+from easy_fossy import (
     create_new_user_group,
     get_user_group,
 
@@ -69,6 +69,8 @@ from fossy import (
 
 
 group_name = get_user_group()
+
+print(group_name)
 
 # print(get_all_jobs(group_name))
 # print(get_all_folders(group_name))
