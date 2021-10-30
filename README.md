@@ -2,13 +2,17 @@
 my own version of foss api
 
 Requires 
+```
 #### 1. python 3.10
+```
 (uses latest structural matching case patterms)
+```
 #### 2. pip3 install req.txt
-
-and a
+```
+```
 #### 3. configure your server in config.ini 
-(file with below contents is essential & effortless kickstart)
+```
+(config.ini file with below contents is essential & effortless kickstart)
 
 ```
 [test]
@@ -33,9 +37,11 @@ token_expire = 2022-10-29
 reports_location = reports/
 group_name = fossy
 ```
-#### 4.  Kickstart straight away [example.py](https://github.com/dineshr93/easy_fossy/blob/master/example.py)
 
-###   ======================================================================
+```
+#### 4.  Kickstart straight away [example.py](https://github.com/dineshr93/easy_fossy/blob/master/example.py)
+```
+###   =====================================================================
 
 ### License: MIT
 ```
