@@ -19,10 +19,13 @@ group_name = fossy
 
 [prod]
 url = http://fossology.com:8081/repo/api/v1/
-uname = fossy
-pwd = fossy
+uname = 
+pwd = 
 access = write
+bearer_token = Bearer OHNSUFaI6OtoFNz
 token_valdity_days = 365
+token_expire = 2022-10-29
+reports_location = reports/
 group_name = fossy
 ```
 ### License: MIT
