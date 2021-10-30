@@ -1,7 +1,7 @@
 # easy_fossy
 accessing foss api is made easier
 
-currently in testing phase you can try and file bugs also do pip install 
+currently in testing phase you can try and file bugs also do pip install from 
 https://test.pypi.org/project/easy-fossy/
 ```
 pip install -i https://test.pypi.org/simple/ easy-fossy
