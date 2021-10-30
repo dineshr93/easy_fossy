@@ -1,13 +1,18 @@
 # easy_fossy
 my own version of foss api
 
-Requires python 3.10
-as it uses latest structural matching case patterms
+Requires 
+#### 1. python 3.10
+(uses latest structural matching case patterms)
+#### 2. pip3 install req.txt
+
 and a
-config.ini file with below contents is essential & effortless kickstart
+#### 3. configure your server in config.ini 
+(file with below contents is essential & effortless kickstart)
+
 ```
 [test]
-url = http://fossology-test.com:8080/repo/api/v1/
+url = http://fossology-test.com:port/repo/api/v1/
 uname = 
 pwd = 
 access = write
@@ -18,7 +23,7 @@ reports_location = reports/
 group_name = fossy
 
 [prod]
-url = http://fossology.com:8081/repo/api/v1/
+url = http://fossology.com:port/repo/api/v1/
 uname = 
 pwd = 
 access = write
@@ -28,6 +33,10 @@ token_expire = 2022-10-29
 reports_location = reports/
 group_name = fossy
 ```
+#### 4.  Kickstart straight away [example.py](https://github.com/dineshr93/easy_fossy/blob/master/example.py)
+
+###   ======================================================================
+
 ### License: MIT
 ```
 MIT License
