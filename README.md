@@ -1,5 +1,11 @@
 # easy_fossy
-my own version of foss api
+accessing foss api is made easier
+
+currently in testing phase you can try and file bugs also do pip install 
+https://test.pypi.org/project/easy-fossy/
+```
+pip install -i https://test.pypi.org/simple/ easy-fossy
+```
 
 Requires 
 ```
