@@ -2,7 +2,7 @@
 
 accessing foss api is made easier
 
-currently in testing phase you can try and file bugs also do pip install from
+https://pypi.org/project/easy-fossy/
 https://test.pypi.org/project/easy-fossy/
 
 ```
@@ -18,7 +18,7 @@ Requires
 (uses latest structural matching case patterms)
 
 ```
-#### 2. pip3 install req.txt
+#### 2. pip install easy-fossy
 ```
 
 ```
