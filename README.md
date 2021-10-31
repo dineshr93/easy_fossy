@@ -66,13 +66,15 @@ from easy_fossy import *
 
 2. trigger_analysis_for_git_upload_package(
     git_url='https://github.com/dineshr93/pageres', branch_name='master', folder_id=1, group_name='fossy')
-
+Avoids duplicate uploads
 
 3. trigger_analysis_for_url_upload_package(
     file_download_url='https://github.com/dineshr93/pageres/archive/refs/heads/master.zip', file_name='pageres.zip', branch_name='', folder_id=1, group_name='fossy')
+Avoids duplicate uploads
 
 4. trigger_analysis_for_upload_package(
     file_path='uploads/commons-lang3-3.12.0-src.zip', folder_id=1, group_name=group_name)
+Avoids duplicate uploads
 
 5. trigger_analysis_for_upload_id(
     upload_id=4, folder_id=1, group_name=group_name)
