@@ -1,6 +1,6 @@
 # easy_fossy
-
-accessing foss api is made easier
+[![Snake fonts](https://see.fontimg.com/api/renderfont4/mLZ3a/eyJyIjoiZnMiLCJoIjoxNzEsInciOjI2MjUsImZzIjo2NSwiZmdjIjoiIzAwMDAwMCIsImJnYyI6IiNGRkZGRkYiLCJ0IjoxfQ/ZWFzeV9mb3NzeQ/terasong.png)](https://www.fontspace.com/category/snake)
+accessing fossy api is made easier
 
 [Production Index Registry](https://pypi.org/project/easy-fossy/)
 
