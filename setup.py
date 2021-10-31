@@ -5,8 +5,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="easy_fossy",
-    version="1.0.1",
-    author="DInesh Ravi",
+    version="1.0.3",
+    author="dinesh_ravi",
     author_email="dineshr93@gmail.com",
     description="fossology API wrapper in python 3.10",
     long_description=long_description,

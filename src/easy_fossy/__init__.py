@@ -872,8 +872,6 @@ def trigger_analysis_for_upload_package(file_path: str, folder_id: int, group_na
 
 # trigger_analysis_for_upload_package(
 #     file_path='uploads/commons-lang3-3.12.0-src.zip', folder_id=1, group_name=group_name)
-# trigger_analysis_for_upload_package(
-#     file_path='https://github.com/dineshr93/pageres/archive/refs/heads/master.zip', folder_id=1, group_name='fossy')
 
 
 def trigger_analysis_for_url_upload_package(file_download_url: str, file_name: str, branch_name: str, folder_id: int, group_name: str):
