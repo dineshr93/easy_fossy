@@ -1,5 +1,7 @@
 # easy_fossy
-[![Snake fonts](https://see.fontimg.com/api/renderfont4/mLZ3a/eyJyIjoiZnMiLCJoIjoxNzEsInciOjI2MjUsImZzIjo2NSwiZmdjIjoiIzAwMDAwMCIsImJnYyI6IiNGRkZGRkYiLCJ0IjoxfQ/ZWFzeV9mb3NzeQ/terasong.png)](https://www.fontspace.com/category/snake)
+
+[![Snake fonts](https://see.fontimg.com/api/renderfont4/mLZ3a/eyJyIjoiZnMiLCJoIjoxNzEsInciOjI2MjUsImZzIjo2NSwiZmdjIjoiIzAwMDAwMCIsImJnYyI6IiNGRkZGRkYiLCJ0IjoxfQ/ZWFzeV9mb3NzeQ/terasong.png)](https://www.fontspace.com/category/snake) <1>
+
 accessing fossy api is made easier
 
 [Production Index Registry](https://pypi.org/project/easy-fossy/)
@@ -19,7 +21,7 @@ Requires
 (uses latest structural matching case patterms)
 
 ```
-#### 2. pip install easy-fossy  
+#### 2. pip install easy-fossy
 
 ```
 
@@ -155,3 +157,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+<1>
+Font by Tehisa by Sealoung
+https://www.fontspace.com/category/snake
+License: Personal Use Free
