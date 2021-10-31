@@ -2,8 +2,9 @@
 
 accessing foss api is made easier
 
-https://pypi.org/project/easy-fossy/
-https://test.pypi.org/project/easy-fossy/
+[Production Index Registry](https://pypi.org/project/easy-fossy/)
+
+[Test Index Registry](https://test.pypi.org/project/easy-fossy/)
 
 ```
 pip install -i https://test.pypi.org/simple/ easy-fossy
@@ -18,7 +19,8 @@ Requires
 (uses latest structural matching case patterms)
 
 ```
-#### 2. pip install easy-fossy
+#### 2. pip install easy-fossy  
+
 ```
 
 ```
