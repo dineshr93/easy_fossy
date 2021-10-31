@@ -1,15 +1,15 @@
 # easy_fossy
 
-[![Snake fonts](https://see.fontimg.com/api/renderfont4/mLZ3a/eyJyIjoiZnMiLCJoIjoxNzEsInciOjI2MjUsImZzIjo2NSwiZmdjIjoiIzAwMDAwMCIsImJnYyI6IiNGRkZGRkYiLCJ0IjoxfQ/ZWFzeV9mb3NzeQ/terasong.png)](https://www.fontspace.com/category/snake) <1>
+[![Snake fonts](https://see.fontimg.com/api/renderfont4/mLZ3a/eyJyIjoiZnMiLCJoIjoxNzEsInciOjI2MjUsImZzIjo2NSwiZmdjIjoiIzAwMDAwMCIsImJnYyI6IiNGRkZGRkYiLCJ0IjoxfQ/ZWFzeV9mb3NzeQ/terasong.png)](https://www.fontspace.com/category/snake) For Font credit Refer <1>
 
-accessing fossy api is made easier
+Accessing fossy api is made easier (requires python 3.10)
 
 [Production Index Registry](https://pypi.org/project/easy-fossy/)
 
 [Test Index Registry](https://test.pypi.org/project/easy-fossy/)
 
 ```
-pip install -i https://test.pypi.org/simple/ easy-fossy
+pip install easy-fossy
 ```
 
 Requires
