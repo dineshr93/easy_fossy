@@ -823,8 +823,6 @@ def trigger_analysis_for_upload_id(upload_id: int, folder_id: int, group_name: s
         case _:
             print(response.text)
 
-
-# 'uploads/commons-io-2.11.0-src.zip'
 # trigger_analysis_for_upload_id(
 #     upload_id=4, folder_id=1, group_name=group_name)
 
@@ -872,7 +870,6 @@ def trigger_analysis_for_upload_package(file_path: str, folder_id: int, group_na
 
 # trigger_analysis_for_upload_package(
 #     file_path='uploads/commons-lang3-3.12.0-src.zip', folder_id=1, group_name=group_name)
-
 
 def trigger_analysis_for_url_upload_package(file_download_url: str, file_name: str, branch_name: str, folder_id: int, group_name: str):
     """trigger_analysis_for_url_upload_package(file_download_url: str, file_name: str, branch_name: str, folder_id: int, group_name: str)"""
