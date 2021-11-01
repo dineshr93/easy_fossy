@@ -66,34 +66,37 @@ Useful functions to import and try
 
 from easy_fossy import *
 
-1. delete_uploads_by_upload_id(upload_id=7, group_name=group_name)
+By default config file will be beside the executing script.
+To set cutom path config file use set_config_ini_file_full_path(config_file= full_path_to/config.ini) (Added from 1.0.6)
+
+1. delete_uploads_by_upload_id(upload_id=7)
 
 2. trigger_analysis_for_git_upload_package(
-    git_url='https://github.com/dineshr93/pageres', branch_name='master', folder_id=1, group_name='fossy')
+    git_url='https://github.com/dineshr93/pageres', branch_name='master', folder_id=1)
 Avoids duplicate uploads
 
 3. trigger_analysis_for_url_upload_package(
-    file_download_url='https://github.com/dineshr93/pageres/archive/refs/heads/master.zip', file_name='pageres.zip', branch_name='', folder_id=1, group_name='fossy')
+    file_download_url='https://github.com/dineshr93/pageres/archive/refs/heads/master.zip', file_name='pageres.zip', branch_name='', folder_id=1)
 Avoids duplicate uploads
 
 4. trigger_analysis_for_upload_package(
-    file_path='uploads/commons-lang3-3.12.0-src.zip', folder_id=1, group_name=group_name)
+    file_path='uploads/commons-lang3-3.12.0-src.zip', folder_id=1)
 Avoids duplicate uploads
 
 5. trigger_analysis_for_upload_id(
-    upload_id=4, folder_id=1, group_name=group_name)
+    upload_id=4, folder_id=1)
 
 6. get_upload_id_by_giturl_package_upload(git_url='https://github.com/dineshr93/pageres', branch_name='master', upload_name='',
-                                       folder_id=1, upload_desc='', visibility=Public.public, group_name='fossy')
+                                       folder_id=1, upload_desc='', visibility=Public.public)
 
 7. get_upload_id_by_download_url_package_upload(
-    file_download_url='https://github.com/dineshr93/pageres/archive/refs/heads/master.zip', file_name='pageres', folder_id=1, upload_desc='commons-io-2.11.0', visibility=Public.public, group_name='fossy')
+    file_download_url='https://github.com/dineshr93/pageres/archive/refs/heads/master.zip', file_name='pageres', folder_id=1, upload_desc='commons-io-2.11.0', visibility=Public.public)
 
 
 8. get_upload_id_by_local_package_upload(
     file_path='uploads/commons-io-2.11.0-src.zip', folder_id=1, upload_desc='commons-io-2.11.0', visibility=Public.public,group_name=group_name)
 
-9. get_licenses_found_by_agents_for_uploadid(upload_id=2, show_directories=True, group_name=group_name, agents=[
+9. get_licenses_found_by_agents_for_uploadid(upload_id=2, show_directories=True, agents=[
                                           Agent.ninka.name, Agent.monk.name, Agent.nomos.name, Agent.ojo.name, Agent.reportImport.name, Agent.reso.name])
 
 
@@ -128,6 +131,16 @@ Avoids duplicate uploads
 21. get_job_info_by_job_id(job_id=3,group_name=group_name)
 
 22. get_all_jobs(group_name)
+
+From 1.0.6
+23. get_all_license_based_on(is_active='true', license_kind=Kind.main, page=1, limit=1)
+
+24. sns = get_all_license_short_names_based_on(
+        is_active='true', license_kind=Kind.main, contains_key='gp', page=1, limit=10000)
+    for i, sn in enumerate(sns, start=1):
+        print(f'{i}. {sn}')
+25. get_license_by_short_name(short_name='AGPL-1.0')
+
 ```
 
 ### =====================================================================

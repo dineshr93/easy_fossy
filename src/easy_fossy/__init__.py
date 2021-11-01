@@ -1,5 +1,5 @@
-
 from .models import (
+    License,
     Public,
     Findings,
     ClearingStatus,
@@ -14,7 +14,7 @@ from .models import (
     HeathInfo,
     Info,
     Job,
-    Kind1,
+    Kind,
     LicenseGetResponse,
     LicensePostRequest,
     LicenseShortnameGetResponse,
@@ -50,6 +50,18 @@ from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 config_parser = configparser.ConfigParser()
 config_file = 'config.ini'
+
+if not Path(config_file).exists():
+    print(
+        f'config.ini file ->  {config_file} doesn\'t exist. Please run set_config_ini_file_full_path(config_file=\'full_path_to_config.ini\')')
+    sys.exit(1)
+
+
+def set_config_ini_file_full_path(config_file: str):
+    """ Sets config file. set_config_ini_file_full_path(config_file= full_path_to/config.ini)"""
+    config_file = config_file
+
+
 config_parser.read(config_file)
 config = config_parser['test']
 url = config.get('url')
@@ -94,14 +106,20 @@ def create_new_user_group(new_group_name: str) -> str:
             print(response.text)
 
 
+group_name = config.get('group_name')
+
+
 def get_user_group():
-    group_name = config.get('group_name')
-    if not group_name:
-        config['group_name'] = str(
-            create_new_user_group(new_group_name='fossy'))
-        with open(config_file, 'w') as cf:
-            config_parser.write(cf)
-        return get_user_group()
+    config['group_name'] = str(
+        create_new_user_group(new_group_name='fossy'))
+    print('No user group found, Creating a group_name called -> fossy')
+    with open(config_file, 'w') as cf:
+        config_parser.write(cf)
+    return config.get('group_name')
+
+
+if not group_name:
+    group_name = get_user_group()
 
 
 def get_token_by_uname_pwd() -> str:
@@ -172,7 +190,7 @@ def get_all_jobs(group_name) -> List[Job]:
 # get_all_jobs(group_name)
 
 
-def get_job_info_by_id(job_id: int, group_name='') -> Job:
+def get_job_info_by_id(job_id: int) -> Job:
     """give the job_id to get the
     {
     "id": 2,
@@ -202,10 +220,10 @@ def get_job_info_by_id(job_id: int, group_name='') -> Job:
         case _:
             print(response.text)
 
-# get_job_info_by_job_id(job_id=3,group_name=group_name)
+# get_job_info_by_job_id(job_id=3)
 
 
-def get_job_info_by_upload_id(upload_id: int, group_name='') -> Job:
+def get_job_info_by_upload_id(upload_id: int) -> Job:
     """give the upload_id to get the job status
     {
     "id": 2,
@@ -235,7 +253,7 @@ def get_job_info_by_upload_id(upload_id: int, group_name='') -> Job:
         case _:
             print(response.text)
 
-# get_job_info_by_job_id(job_id=3,group_name=group_name)
+# get_job_info_by_job_id(job_id=3)
 
 
 def generate_and_get_desired_report_for_uploadid(upload_id: int, report_format: ReportFormat):
@@ -311,7 +329,7 @@ def generate_and_get_desired_report_for_uploadid(upload_id: int, report_format: 
 # generate_and_get_desired_report_for_uploadid(upload_id=3, report_format=ReportFormat.unifiedreport)
 
 
-def get_all_folders(group_name) -> List[Folder]:
+def get_all_folders() -> List[Folder]:
     """ Get all the folders in given fossy instance"""
     payload = ""
     headers = {
@@ -336,11 +354,11 @@ def get_all_folders(group_name) -> List[Folder]:
             print(response.text)
 
 
-# get_all_folders(group_name)
+# get_all_folders()
 
 
-def get_folder_info_by_id(folder_id: int, group_name: str) -> Folder:
-    """get_folder_info_by_id(folder_id: int, group_name: str) -> Folder"""
+def get_folder_info_by_id(folder_id: int) -> Folder:
+    """get_folder_info_by_id(folder_id: int) -> Folder"""
     payload = ""
     headers = {
         "accept": "application/json",
@@ -360,10 +378,10 @@ def get_folder_info_by_id(folder_id: int, group_name: str) -> Folder:
             print(response.text)
 
 
-# get_folder_info_by_id(folder_id=11,group_name=group_name)
+# get_folder_info_by_id(folder_id=11)
 
 
-def change_folder_name_or_desc(folder_id: int, new_folder_name: str = '', new_folder_desc: str = '', group_name: str = ''):
+def change_folder_name_or_desc(folder_id: int, new_folder_name: str = '', new_folder_desc: str = ''):
     """name and desc are optional, mandatory input is the folder id"""
     payload = ""
     headers = {
@@ -385,13 +403,13 @@ def change_folder_name_or_desc(folder_id: int, new_folder_name: str = '', new_fo
             print(response.text)
 
 
-# change_folder_name_or_desc(folder_id=3, new_folder_name='', new_folder_desc='',group_name=group_name)
+# change_folder_name_or_desc(folder_id=3, new_folder_name='', new_folder_desc='')
 
-# change_folder_name_or_desc(folder_id=2, new_folder_name='', new_folder_desc = 'scans triggered from sw360 test',group_name=group_name)
+# change_folder_name_or_desc(folder_id=2, new_folder_name='', new_folder_desc = 'scans triggered from sw360 test')
 # get_all_folders()
 
 
-def create_folder_under_parent_folder_id(parent_folder_id: int, folder_name: str, group_name: str) -> Info:
+def create_folder_under_parent_folder_id(parent_folder_id: int, folder_name: str) -> Info:
     """create the folder under parent folder id with given folder_name"""
     payload = ""
     headers = {
@@ -415,14 +433,14 @@ def create_folder_under_parent_folder_id(parent_folder_id: int, folder_name: str
 
 
 # create_folder_under_parent_folder_id(
-#     parent_folder_id=1, folder_name='test',group_name=group_name)
+#     parent_folder_id=1, folder_name='test')
 # create_folder_under_parent_folder_id(
-#     parent_folder_id=6, folder_name='submove',group_name=group_name)
+#     parent_folder_id=6, folder_name='submove')
 # get_all_folders()
 
 
-def delete_folder_by_id(folder_id: int, group_name: str):
-    """delete_folder_by_id(folder_id: int, group_name: str)"""
+def delete_folder_by_id(folder_id: int):
+    """delete_folder_by_id(folder_id: int)"""
     payload = ""
     headers = {
         "accept": "application/json",
@@ -441,12 +459,12 @@ def delete_folder_by_id(folder_id: int, group_name: str):
         case _:
             print(response.text)
 
-# delete_folder_by_id(folder_id=3,group_name=group_name)
+# delete_folder_by_id(folder_id=3)
 # get_all_folders()
 
 
-def apply_action_to_folderid(actions: Action, folder_id: int, parent_folder_id: int, group_name: str) -> Info:
-    """apply_action_to_folderid(actions: Action, folder_id: int, parent_folder_id: int, group_name: str) -> Info"""
+def apply_action_to_folderid(actions: Action, folder_id: int, parent_folder_id: int) -> Info:
+    """apply_action_to_folderid(actions: Action, folder_id: int, parent_folder_id: int) -> Info"""
     payload = ""
     headers = {
         "accept": "application/json",
@@ -468,16 +486,16 @@ def apply_action_to_folderid(actions: Action, folder_id: int, parent_folder_id: 
             print(response.text)
 
 
-# apply_action_to_folderid(actions=Action.copy, folder_id=5, parent_folder_id=2,group_name=group_name)
-# apply_action_to_folderid(actions=Action.move, folder_id=6, parent_folder_id=2,group_name=group_name)
+# apply_action_to_folderid(actions=Action.copy, folder_id=5, parent_folder_id=2)
+# apply_action_to_folderid(actions=Action.move, folder_id=6, parent_folder_id=2)
 
 # change_folder_name_or_desc(folder_id=11, new_folder_name='',
-#                            new_folder_desc='scans triggered from sw360 test',group_name=group_name)
+#                            new_folder_desc='scans triggered from sw360 test')
 
 # get_all_folders('fossy')
 
 
-def get_upload_summary_for_uploadid(upload_id: int, group_name: str) -> UploadSummary:
+def get_upload_summary_for_uploadid(upload_id: int) -> UploadSummary:
     """get upload summary for given upload_id
     {
     "id": 2,
@@ -513,10 +531,10 @@ def get_upload_summary_for_uploadid(upload_id: int, group_name: str) -> UploadSu
             print(response.text)
 
 
-# get_upload_summary_for_uploadid(upload_id=2,group_name=group_name)
+# get_upload_summary_for_uploadid(upload_id=2)
 
-def get_all_uploads_based_on(folder_id: int, is_recursive: bool, search_pattern_key: str, upload_status: ClearingStatus, assignee: str, since_yyyy_mm_dd: str, page: int, limit: int, group_name: str) -> List[Upload]:
-    """get_all_uploads_based_on(folder_id: int, is_recursive: bool, search_pattern_key: str, upload_status: ClearingStatus, assignee: str, since_yyyy_mm_dd: str, page: int, limit: int, group_name: str) -> List[Upload]"""
+def get_all_uploads_based_on(folder_id: int, is_recursive: bool, search_pattern_key: str, upload_status: ClearingStatus, assignee: str, since_yyyy_mm_dd: str, page: int, limit: int) -> List[Upload]:
+    """get_all_uploads_based_on(folder_id: int, is_recursive: bool, search_pattern_key: str, upload_status: ClearingStatus, assignee: str, since_yyyy_mm_dd: str, page: int, limit: int) -> List[Upload]"""
     querystring = {"folderId": folder_id, "recursive": is_recursive, "name": search_pattern_key,
                    "status": upload_status.name, "assignee": assignee, "since": since_yyyy_mm_dd}
 
@@ -545,10 +563,10 @@ def get_all_uploads_based_on(folder_id: int, is_recursive: bool, search_pattern_
 
 
 # get_all_uploads_based_on(folder_id=1, is_recursive=True,
-#                          search_pattern_key='', upload_status=ClearingStatus.Open, assignee='', since_yyyy_mm_dd='', page=1, limit=1000,group_name=group_name)
+#                          search_pattern_key='', upload_status=ClearingStatus.Open, assignee='', since_yyyy_mm_dd='', page=1, limit=1000)
 
 
-def get_licenses_found_by_agents_for_uploadid(upload_id: int, agents: List[str], show_directories: bool, group_name: str) -> UploadLicenses | Info:
+def get_licenses_found_by_agents_for_uploadid(upload_id: int, agents: List[str], show_directories: bool) -> UploadLicenses | Info:
     """get licenses acc to agent
     class Agent(Enum):
         nomos = 'nomos'
@@ -589,8 +607,8 @@ def get_licenses_found_by_agents_for_uploadid(upload_id: int, agents: List[str],
 # get_licenses_found_by_agents_for_uploadid(upload_id=2, show_directories=True, group_name=group_name, agents=[
 #                                           Agent.ninka.name, Agent.monk.name, Agent.nomos.name, Agent.ojo.name, Agent.reportImport.name, Agent.reso.name])
 
-def get_upload_id_by_local_package_upload(file_path: str, folder_id: int, upload_desc: str, visibility: Public, group_name: str) -> str:
-    """get_upload_id_by_local_package_upload(file_path: str, folder_id: int, upload_desc: str, visibility: Public, group_name: str) -> str"""
+def get_upload_id_by_local_package_upload(file_path: str, folder_id: int, upload_desc: str, visibility: Public) -> str:
+    """get_upload_id_by_local_package_upload(file_path: str, folder_id: int, upload_desc: str, visibility: Public) -> str"""
     # files = {'file': open(file_path, 'rb')}
 
     if Path(file_path).exists():
@@ -637,7 +655,7 @@ def get_upload_id_by_local_package_upload(file_path: str, folder_id: int, upload
 
 
 # get_upload_id_by_local_package_upload(
-#     file_path='uploads/commons-io-2.11.0-src.zip', folder_id=1, upload_desc='commons-io-2.11.0', visibility=Public.public,group_name=group_name)
+#     file_path='uploads/commons-io-2.11.0-src.zip', folder_id=1, upload_desc='commons-io-2.11.0', visibility=Public.public)
 
 def check_url_exists(url: str):
     """
@@ -648,8 +666,8 @@ def check_url_exists(url: str):
     return requests.head(url, allow_redirects=True).status_code == 200
 
 
-def get_upload_id_by_download_url_package_upload(file_download_url: str, file_name: str, folder_id: int, upload_desc: str, visibility: Public, group_name: str) -> str:
-    """get_upload_id_by_download_url_package_upload(file_download_url: str, file_name: str, folder_id: int, upload_desc: str, visibility: Public, group_name: str) -> str"""
+def get_upload_id_by_download_url_package_upload(file_download_url: str, file_name: str, folder_id: int, upload_desc: str, visibility: Public) -> str:
+    """get_upload_id_by_download_url_package_upload(file_download_url: str, file_name: str, folder_id: int, upload_desc: str, visibility: Public) -> str"""
     # files = {'file': open(file_path, 'rb')}
     if not check_url_exists(file_download_url):
         print(f'git url {file_download_url} is malformed')
@@ -693,11 +711,11 @@ def get_upload_id_by_download_url_package_upload(file_download_url: str, file_na
 
 
 # get_upload_id_by_download_url_package_upload(
-#     file_download_url='https://github.com/dineshr93/pageres/archive/refs/heads/master.zip', file_name='pageres', folder_id=1, upload_desc='commons-io-2.11.0', visibility=Public.public, group_name='fossy')
+#     file_download_url='https://github.com/dineshr93/pageres/archive/refs/heads/master.zip', file_name='pageres', folder_id=1, upload_desc='commons-io-2.11.0', visibility=Public.public)
 
 
-def get_upload_id_by_giturl_package_upload(git_url: str, branch_name: str, upload_name: str, folder_id: int, upload_desc: str, visibility: Public, group_name: str) -> str:
-    """get_upload_id_by_giturl_package_upload(git_url: str, branch_name: str, upload_name: str, folder_id: int, upload_desc: str, visibility: Public, group_name: str) -> str"""
+def get_upload_id_by_giturl_package_upload(git_url: str, branch_name: str, upload_name: str, folder_id: int, upload_desc: str, visibility: Public) -> str:
+    """get_upload_id_by_giturl_package_upload(git_url: str, branch_name: str, upload_name: str, folder_id: int, upload_desc: str, visibility: Public) -> str"""
     # files = {'file': open(file_path, 'rb')}
 
     if not check_url_exists(git_url):
@@ -757,11 +775,11 @@ def get_upload_id_by_giturl_package_upload(git_url: str, branch_name: str, uploa
 
 
 # get_upload_id_by_giturl_package_upload(git_url='https://github.com/dineshr93/pageres', branch_name='master', upload_name='',
-#                                        folder_id=1, upload_desc='', visibility=Public.public, group_name='fossy')
+#                                        folder_id=1, upload_desc='', visibility=Public.public)
 
 
-def trigger_analysis_for_upload_id(upload_id: int, folder_id: int, group_name: str) -> Info:
-    """trigger_analysis_for_upload_id(upload_id: int, folder_id: int, group_name: str) -> Info"""
+def trigger_analysis_for_upload_id(upload_id: int, folder_id: int) -> Info:
+    """trigger_analysis_for_upload_id(upload_id: int, folder_id: int) -> Info"""
     payload = {
         "analysis": {
             "bucket": True,
@@ -827,8 +845,8 @@ def trigger_analysis_for_upload_id(upload_id: int, folder_id: int, group_name: s
 #     upload_id=4, folder_id=1, group_name=group_name)
 
 
-def trigger_analysis_for_upload_package(file_path: str, folder_id: int, group_name: str):
-    """trigger_analysis_for_upload_package(file_path: str, folder_id: int, group_name: str)"""
+def trigger_analysis_for_upload_package(file_path: str, folder_id: int):
+    """trigger_analysis_for_upload_package(file_path: str, folder_id: int)"""
     if not Path(file_path).exists():
         print(f'File path {file_path} doesn\'t exist')
 
@@ -871,8 +889,8 @@ def trigger_analysis_for_upload_package(file_path: str, folder_id: int, group_na
 # trigger_analysis_for_upload_package(
 #     file_path='uploads/commons-lang3-3.12.0-src.zip', folder_id=1, group_name=group_name)
 
-def trigger_analysis_for_url_upload_package(file_download_url: str, file_name: str, branch_name: str, folder_id: int, group_name: str):
-    """trigger_analysis_for_url_upload_package(file_download_url: str, file_name: str, branch_name: str, folder_id: int, group_name: str)"""
+def trigger_analysis_for_url_upload_package(file_download_url: str, file_name: str, branch_name: str, folder_id: int):
+    """trigger_analysis_for_url_upload_package(file_download_url: str, file_name: str, branch_name: str, folder_id: int)"""
     if not check_url_exists(file_download_url):
         print(f'git url {file_download_url} is malformed')
 
@@ -912,11 +930,11 @@ def trigger_analysis_for_url_upload_package(file_download_url: str, file_name: s
 
 
 # trigger_analysis_for_url_upload_package(
-#     file_download_url='https://github.com/dineshr93/pageres/archive/refs/heads/master.zip', file_name='pageres.zip', branch_name='', folder_id=1, group_name='fossy')
+#     file_download_url='https://github.com/dineshr93/pageres/archive/refs/heads/master.zip', file_name='pageres.zip', branch_name='', folder_id=1)
 
 
-def trigger_analysis_for_git_upload_package(git_url: str, branch_name: str, folder_id: int, group_name: str):
-    """trigger_analysis_for_git_upload_package(git_url: str, branch_name: str, folder_id: int, group_name: str)"""
+def trigger_analysis_for_git_upload_package(git_url: str, branch_name: str, folder_id: int):
+    """trigger_analysis_for_git_upload_package(git_url: str, branch_name: str, folder_id: int)"""
     if not check_url_exists(git_url):
         print(f'git url {git_url} is malformed')
 
@@ -959,10 +977,10 @@ def trigger_analysis_for_git_upload_package(git_url: str, branch_name: str, fold
 
 
 # trigger_analysis_for_git_upload_package(
-#     git_url='https://github.com/dineshr93/pageres', branch_name='master', folder_id=1, group_name='fossy')
+#     git_url='https://github.com/dineshr93/pageres', branch_name='master', folder_id=1)
 
 
-def delete_uploads_by_upload_id(upload_id: int, group_name: str) -> Info:
+def delete_uploads_by_upload_id(upload_id: int) -> Info:
     """Delete the upload by given upload id"""
     payload = ""
     headers = {
@@ -984,3 +1002,117 @@ def delete_uploads_by_upload_id(upload_id: int, group_name: str) -> Info:
 
 
 # delete_uploads_by_upload_id(upload_id=7, group_name=group_name)
+def get_all_license_based_on(is_active: str, license_kind: Kind, page: int, limit: int) -> List[License]:
+    """
+    get_all_license_based_on(is_active: str, license_kind: Kind, limit: int) -> List[License]
+
+    is_active must be true or false
+
+    class Kind(Enum):
+    candidate = 'candidate'
+    main = 'main'
+    all = 'all'
+    """
+    querystring = {"kind": license_kind.name}
+
+    payload = ""
+    headers = {
+        "accept": "application/json",
+        "page": str(page),
+        "limit": str(limit),
+        "active":  is_active.lower(),
+        "groupName": group_name,
+        "Authorization": bearer_token
+    }
+
+    response = requests.request(
+        "GET", url+str('license'), data=payload, headers=headers, params=querystring)
+
+    match response.json():
+        case [*args]:
+            licenses = []
+            for license in args:
+                licenses.append(License(**license))
+            # for lic in licenses:
+            #     print('======')
+            #     print(lic)
+            return licenses
+        case {**info}:
+            report_info = Info(**info)
+            print(f'{report_info.message}')
+            return report_info
+        case _:
+            print(response.text)
+
+
+# get_all_license_based_on(
+#     is_active='true', license_kind=Kind.main, page=1, limit=1)
+
+def get_all_license_short_names_based_on(is_active: str, license_kind: Kind, page: int, contains_key: str, limit: int) -> List[str]:
+    """
+    get_all_license_short_names_based_on(is_active: str, license_kind: Kind, page: int, contains_key: str, limit: int) -> List[str]
+
+    use contains_key to filter based on keywords.
+
+    is_active must be true or false
+
+    class Kind(Enum):
+    candidate = 'candidate'
+    main = 'main'
+    all = 'all'
+    """
+    licenses = get_all_license_based_on(
+        is_active=is_active, license_kind=license_kind, page=page, limit=limit, group_name=group_name)
+    license_shortnames = [
+        license.shortName for license in licenses if contains_key.lower() in license.shortName.lower()]
+    if len(license_shortnames) > 0:
+        return license_shortnames
+    else:
+        print('No License shortnames been found')
+        return None
+
+
+# sns = get_all_license_short_names_based_on(
+#     is_active='true', license_kind=Kind.main, contains_key='gp', page=1, limit=10000)
+# for i, sn in enumerate(sns, start=1):
+#     print(f'{i}. {sn}')
+
+
+def get_license_by_short_name(short_name: str) -> LicenseShortnameGetResponse:
+    """
+    get_license_by_short_name(short_name: str) -> LicenseShortnameGetResponse
+    {
+    "id": 317,
+    "shortName": "GPL",
+    "fullName": "GNU General Public License",
+    "text": "GPL is referenced without a version number. Please look up GPL in the License Admin to view the different versions.",
+    "url": "",
+    "risk": null,
+    "isCandidate": false,
+    "obligations": []
+    }
+    """
+    payload = ""
+    headers = {
+        "accept": "application/json",
+        "groupName": group_name,
+        "Authorization": bearer_token
+    }
+
+    response = requests.request(
+        "GET", url+str(f'license/{short_name}'), data=payload, headers=headers)
+    match response.json():
+        case {**license_info} if response.status_code == 200:
+            license_info = LicenseShortnameGetResponse(**license_info)
+            print(f'{license_info}')
+            return license_info
+        case {**info} if response.status_code == 404:
+            report_info = Info(**info)
+            print(f'{report_info}')
+            sys.exit(1)
+        case _:
+            print(response.text)
+            sys.exit(1)
+
+
+# get_license_by_short_name(short_name='AGPL-1.0')
