@@ -52,9 +52,9 @@ config_parser = configparser.ConfigParser()
 config_file = 'config.ini'
 
 
-def set_config_ini_file_full_path(config_file: str):
+def set_config_ini_file_full_path(self, config_file: str):
     """ Sets config file. set_config_ini_file_full_path(config_file= full_path_to/config.ini)"""
-    config_file = config_file
+    self.config_file = config_file
 
 
 if not Path(config_file).exists():
