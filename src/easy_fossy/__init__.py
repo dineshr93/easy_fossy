@@ -52,9 +52,13 @@ config_parser = configparser.ConfigParser()
 config_file = 'config.ini'
 
 
-def set_config_ini_file_full_path(self, config_file: str):
-    """ Sets config file. set_config_ini_file_full_path(config_file= full_path_to/config.ini)"""
+def __init__(self, config_file):
     self.config_file = config_file
+
+
+def set_config_ini_file_full_path(config_file: str):
+    """ Sets config file. set_config_ini_file_full_path(config_file= full_path_to/config.ini)"""
+    config_file = config_file
 
 
 if not Path(config_file).exists():
@@ -221,7 +225,7 @@ def get_job_info_by_id(job_id: int) -> Job:
         case _:
             print(response.text)
 
-# get_job_info_by_job_id(job_id=3)
+# get_job_info_by_id(job_id=3)
 
 
 def get_job_info_by_upload_id(upload_id: int) -> Job:
@@ -254,7 +258,7 @@ def get_job_info_by_upload_id(upload_id: int) -> Job:
         case _:
             print(response.text)
 
-# get_job_info_by_job_id(job_id=3)
+# get_job_info_by_upload_id(job_id=3)
 
 
 def generate_and_get_desired_report_for_uploadid(upload_id: int, report_format: ReportFormat):
@@ -1117,3 +1121,68 @@ def get_license_by_short_name(short_name: str) -> LicenseShortnameGetResponse:
 
 
 # get_license_by_short_name(short_name='AGPL-1.0')
+
+def update_license_info_by_short_name(short_name: str, new_full_name: str, new_license_text: str, new_url: str, new_risk: int) -> Info:
+    """update information about a specific license by shortname"""
+
+    payload = {
+        "fullName": new_full_name,
+        "text": new_license_text,
+        "url": new_url,
+        "risk": new_risk
+    }
+    headers = {
+        "accept": "application/json",
+        "groupName": group_name,
+        "Content-Type": "application/json",
+        "Authorization": bearer_token
+    }
+
+    response = requests.request(
+        "PATCH", url+str(f'license/{short_name}'), json=payload, headers=headers)
+
+    match response.json():
+        case {**info} if response.status_code == 200:
+            report_info = Info(**info)
+            print(f'{report_info}')
+            return report_info
+        case _:
+            print(response.text)
+
+# update_license_info_by_short_name(short_name='', new_full_name='', new_license_text='', new_url='', new_risk=2)
+
+def add_new_license(unique_short_name: str, new_full_name: str, new_license_text: str, new_url: str, new_risk: int, isCandidate: bool, merge_request: bool) -> Info:
+    """add_new_license(unique_short_name: str, new_full_name: str, new_license_text: str, new_url: str, new_risk: int, isCandidate: bool, merge_request: bool):"""
+    payload = {
+        "shortName": unique_short_name,
+        "fullName": new_full_name,
+        "text": new_license_text,
+        "url": new_url,
+        "risk": new_risk,
+        "isCandidate": isCandidate,
+        "mergeRequest": merge_request
+    }
+    headers = {
+        "accept": "application/json",
+        "groupName": group_name,
+        "Content-Type": "application/json",
+        "Authorization": bearer_token
+    }
+
+    response = requests.request("POST", url, json=payload, headers=headers)
+
+    match response.json():
+        case {**info} if response.status_code == 200:
+            report_info = Info(**info)
+            print(f'{report_info}')
+            return report_info
+        case {**info} if response.status_code == 409:
+            report_info = Info(**info)
+            print(f'{report_info}')
+            return report_info
+        case _:
+            print(response.text)
+
+
+# add_new_license(unique_short_name='', new_full_name='', new_license_text='',
+#                 new_url='', new_risk=2, isCandidate=True, merge_request=False)
