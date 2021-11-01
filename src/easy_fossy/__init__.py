@@ -50,6 +50,9 @@ from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 config_parser = configparser.ConfigParser()
 config_file = 'config.ini'
+def set_config_ini_file_full_path(config_file: str):
+    """ Sets config file. set_config_ini_file_full_path(config_file= full_path_to/config.ini)"""
+    config_file = config_file
 
 if not Path(config_file).exists():
     print(
@@ -57,9 +60,6 @@ if not Path(config_file).exists():
     sys.exit(1)
 
 
-def set_config_ini_file_full_path(config_file: str):
-    """ Sets config file. set_config_ini_file_full_path(config_file= full_path_to/config.ini)"""
-    config_file = config_file
 
 
 config_parser.read(config_file)
