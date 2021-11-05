@@ -64,16 +64,16 @@ group_name = fossy
 ```
 Useful functions to import and try
 
-from easy_fossy import easy_fossy as fossy
+    from easy_fossy import easy_fossy as fossy
 
 
 To set the location of config.ini file and get the instance to access all the methos use below code
 
 
-use_fossy_to=fossy('location/config.ini','test')
+    use_fossy_to=fossy('location/config.ini','test')
 
 
-use_fossy_to=fossy('location/config.ini','prod')
+    use_fossy_to=fossy('location/config.ini','prod')
 
 
 1. use_fossy_to.delete_uploads_by_upload_id(upload_id=7)

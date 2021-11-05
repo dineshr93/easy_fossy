@@ -24,6 +24,7 @@ from .models import (
     ReportFormat2,
     ScanOptions,
     SearchResults,
+    SearchType,
     SearchType1,
     SearchType2,
     Status5,
@@ -1147,3 +1148,87 @@ class easy_fossy:
 
     # add_new_license(unique_short_name='', new_full_name='', new_license_text='',
     #                 new_url='', new_risk=2, isCandidate=True, merge_request=False)
+
+    def search_files_based_on(self, filename_wildcard: str, searchType: SearchType, uploadId: int, tag: str, filesizemin_bytes: int, filesizemax_bytes: int, license: str, copyright: str) -> List[SearchResults] | Info:
+        """Most are optional parameters
+        def search_files_based_on(self, filename_wildcard: str, searchType: SearchType, uploadId: int, tag: str, filesizemin_bytes: int, filesizemax_bytes: int, license: str, copyright: str) -> List[SearchResults] | Info:
+        """
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "groupName": self.group_name,
+            "searchType": searchType.name,
+            "uploadId": uploadId,
+            "filename": filename_wildcard,
+            "tag": tag,
+            "filesizemin": filesizemin_bytes,
+            "filesizemax": filesizemax_bytes,
+            "license": license,
+            "copyright": copyright,
+            "Authorization": self.bearer_token
+        }
+
+        response = requests.request(
+            "GET", self.url+str('search'), data=payload, headers=headers)
+
+        match response.json():
+            case [*args]:
+                search_results = []
+                for search_result in args:
+                    search_results.append(SearchResults(**search_result))
+                for s in search_results:
+                    print(s)
+                # print(folders)
+                return search_results
+            case {**info}:
+                report_info = Info(**info)
+                print(f'{report_info.message}')
+                return report_info
+            case _:
+                print(response.text)
+
+    def get_file_by_any_one_of_sha1_or_md5_or_sha256(self, sha1: str = '', md5: str = '', sha256: str = '') -> List[File]:
+        """def get_file_by_any_one_of_sha1_or_md5_or_sha256(self, sha1: str = '', md5: str = '', sha256: str = '') -> List[File]"""
+        json_params = ''
+        if sha1 != '':
+            json_params = str(f'"sha1": {sha1}')
+        else:
+            json_params = ''
+        if md5 != '':
+            json_params = str(f'"md5": {md5}')
+        else:
+            json_params = ''
+        if sha256 != '':
+            json_params = str(f'"sha256": {sha256}')
+        else:
+            json_params = ''
+
+        if json_params == '':
+            print('Please provide any_one_of_sha1_or_md5_or_sha256 values')
+            sys.exit(1)
+        payload = [
+            {
+                json_params
+            }
+        ]
+        headers = {
+            "accept": "application/json",
+            "groupName": self.group_name,
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token
+        }
+
+        response = requests.request(
+            "POST", self.url+str('filesearch'), json=payload, headers=headers)
+
+        match response.json():
+            case [*args]:
+                files = []
+                for file in args:
+                    files.append(File(**file))
+                for f in files:
+                    print(f)
+                # print(folders)
+                return files
+            case _:
+                print(response.text)
