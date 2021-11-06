@@ -163,6 +163,13 @@ From 1.0.9
 
 27. use_fossy_to.update_license_info_by_short_name(short_name='', new_full_name='', new_license_text='', new_url='', new_risk=2)
 
+28. use_fossy_to.search_files_based_on(self, filename_wildcard: str, searchType: SearchType, uploadId: int, tag: str, filesizemin_bytes: int, filesizemax_bytes: int, license: str, copyright: str) -> List[SearchResults] | Info:
+--- give SearchType.Directory and filename_wildcard = 'draw%' (for draPaintIO.zip)
+
+29 use_fossy_to.get_file_by_any_one_of_sha1_or_md5_or_sha256(self, sha1: str = '', md5: str = '', sha256: str = '') -> List[File]:
+--- give only one hash of any of 3 format sha1 or sha256 or md5
+--- check for 'message' param of FILE class as it only appears if no file for hash is returned else it will not appear upload will appear
+
 ```
 
 ### =====================================================================
