@@ -174,9 +174,7 @@ class easy_fossy:
 
         match response.json():
             case [*args]:
-                jobs = []
-                for job in args:
-                    jobs.append(Job(**job))
+                jobs = [Job(**job) for job in args]
                 # for j in jobs:
                 #     print(jobs)
                 return jobs
@@ -336,9 +334,7 @@ class easy_fossy:
 
         match response.json():
             case [*args]:
-                folders = []
-                for folder in args:
-                    folders.append(Folder(**folder))
+                folders = [Folder(**folder) for folder in args]
                 for f in folders:
                     print(f)
                 # print(folders)
@@ -533,9 +529,7 @@ class easy_fossy:
 
         match response.json():
             case [*args]:
-                uploads = []
-                for upload in args:
-                    uploads.append(Upload(**upload))
+                uploads = [Upload(**upload) for upload in args]
                 # for upload in uploads:
                 #     print(upload)
                 return uploads
@@ -568,13 +562,12 @@ class easy_fossy:
 
         match response.json():
             case [*args]:
-                UploadLicenses = []
-                for uploadLicense in args:
-                    UploadLicenses.append(UploadLicense(**uploadLicense))
-                for f in UploadLicenses:
+                upload_icenses = [UploadLicense(
+                    **uploadLicense) for uploadLicense in args]
+                for f in upload_icenses:
                     print(f)
                 # print(folders)
-                return UploadLicenses
+                return upload_icenses
             case {**info}:
                 report_info = Info(**info)
                 print(f'{report_info.message}')
@@ -1001,9 +994,7 @@ class easy_fossy:
 
         match response.json():
             case [*args]:
-                licenses = []
-                for license in args:
-                    licenses.append(License(**license))
+                licenses = [License(**license) for license in args]
                 # for lic in licenses:
                 #     print('======')
                 #     print(lic)
@@ -1173,9 +1164,8 @@ class easy_fossy:
 
         match response.json():
             case [*args]:
-                search_results = []
-                for search_result in args:
-                    search_results.append(SearchResults(**search_result))
+                search_results = [SearchResults(
+                    **search_result) for search_result in args]
                 for s in search_results:
                     print(s)
                 # print(folders)
@@ -1187,8 +1177,8 @@ class easy_fossy:
             case _:
                 print(response.text)
 
-    def get_file_by_any_one_of_sha1_or_md5_or_sha256(self, sha1: str = '', md5: str = '', sha256: str = '') -> List[File]:
-        """def get_file_by_any_one_of_sha1_or_md5_or_sha256(self, sha1: str = '', md5: str = '', sha256: str = '') -> List[File]"""
+    def get_file_by_any_one_of_sha1_or_md5_or_sha256(self, sha1: str = '', md5: str = '', sha256: str = '') -> str | List[File]:
+        """def get_file_by_any_one_of_sha1_or_md5_or_sha256(self, sha1: str = '', md5: str = '', sha256: str = '') -> str | List[File]"""
         json_params = ''
         if sha1 != '':
             json_params = str(f'"sha1": {sha1}')
@@ -1222,10 +1212,11 @@ class easy_fossy:
             "POST", self.url+str('filesearch'), json=payload, headers=headers)
 
         match response.json():
+            case [{"message": error_message}]:
+                print(error_message)
+                return error_message
             case [*args]:
-                files = []
-                for file in args:
-                    files.append(File(**file))
+                files = [File(**file) for file in args]
                 for f in files:
                     print(f)
                 # print(folders)
