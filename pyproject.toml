@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "easy_fossy"
-version = "2.0.5"
+version = "2.0.6"
 description = "fossology API wrapper in python 3.10"
 authors = ["dinesh_ravi"]
 license = "MIT License"

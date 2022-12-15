@@ -67,6 +67,9 @@ class easy_fossy:
         self.config = self.config_parser[self.server]
         self.url = self.config.get("url")
 
+        if not self.url.endswith("/"):
+            self.url = self.url + "/"
+
         self.token_expire = self.config.get("token_expire")
         self.reports_location = self.config.get("reports_location")
 

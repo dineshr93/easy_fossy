@@ -69,9 +69,11 @@ f = fossy("config.ini", "test")
 
 # ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'add_new_license', 'apply_action_to_folderid', 'bearer_token', 'change_folder_name_or_desc', 'check_url_exists', 'config', 'config_file', 'config_parser', 'create_folder_under_parent_folder_id', 'create_new_user_group', 'delete_folder_by_id', 'delete_uploads_by_upload_id', 'dt_format', 'generate_and_get_desired_report_for_uploadid', 'get_all_folders', 'get_all_jobs', 'get_all_license_based_on', 'get_all_license_short_names_based_on', 'get_all_uploads_based_on', 'get_file_by_any_one_of_sha1_or_md5_or_sha256', 'get_folder_info_by_id', 'get_job_info_by_id', 'get_job_info_by_upload_id', 'get_license_by_short_name', 'get_licenses_found_by_agents_for_uploadid', 'get_token_by_uname_pwd', 'get_upload_id_by_download_url_package_upload', 'get_upload_id_by_giturl_package_upload', 'get_upload_id_by_local_package_upload', 'get_upload_summary_for_uploadid', 'group_name', 'now', 'reports_location', 'search_files_based_on', 'server', 'set_config_ini_file_full_path', 'today', 'token_expire', 'token_expire_yyyy_mm_dd', 'trigger_analysis_for_git_upload_package', 'trigger_analysis_for_upload_id', 'trigger_analysis_for_upload_package', 'trigger_analysis_for_url_upload_package', 'update_license_info_by_short_name', 'url']
 
-job_names = f.get_all_jobs()
-job_names.sort(key=lambda x: x.id, reverse=True)
-print(job_names[0])
+f.get_job_info_by_id(101)
+
+# job_names = f.get_all_jobs()
+# job_names.sort(key=lambda x: x.id, reverse=True)
+# print(job_names[0])
 
 # print(f.get_all_jobs(group_name))
 # print(f.get_all_folders(group_name))
