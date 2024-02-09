@@ -21,7 +21,7 @@ if [[ $1 == "debug" ]]; then
     echo "======================================================================="
     echo "| Rectify the error present in .ort/scan-report-web-app.html          |"
     echo "| Rectify the error present in .ort/AsciiDoc_disclosure_document.html |"
-	echo "| run 'bash .ort.sh report' to get final report                       |"
+    echo "| run 'bash .ort.sh report' to get final report                       |"
     echo "======================================================================="
 fi
 
@@ -33,6 +33,39 @@ if [[ $1 == "bom" ]]; then
 	echo "=============== ORT Final Report ==============="
     ort report --ort-file=.ort/evaluation-result.yml --output-dir=$reportname --report-formats="PlainTextTemplate,SpdxDocument" -O "PlainTextTemplate=template.id=NOTICE_SUMMARY"
     #"CtrlXAutomation,CycloneDx,DocBookTemplate,EvaluatedModel,FossId,FossIdSnippet,GitLabLicenseModel,HtmlTemplate,ManPageTemplate,Opossum,PdfTemplate,PlainTextTemplate,SpdxDocument,StaticHtml,TrustSource,WebApp"
+fi
+if [[ $1 == "advise" ]]; then
+    echo "==========================================================================================================="
+    echo "| Ensure ort and scancode is installed otherwise its waste of time you can do ctrl+c to cancel this script |"
+    echo "==========================================================================================================="
+    if [ -d $reportname ]; then
+        echo "=============== Stage 0: Clean previous report folder ==============="
+        rm -rf $reportname
+    fi
+    if [ -d ".ort" ]; then
+        echo "=============== Stage 0: Clean previous .ort folder ==============="
+        rm -rf .ort
+    fi
+
+    echo "=============== Stage 1: ORT Analyze ==============="
+    ort analyze --input-dir=. --output-dir=.ort
+    duration=$SECONDS
+    echo "until ort analyze $(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed."
+    echo "=============== Stage 2: ORT Advise ==============="
+    ort advise --output-dir=.ort --ort-file=.ort/analyzer-result.yml --advisors="OSV"
+    duration=$SECONDS
+    echo "until ort advise $(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed."
+    echo "=============== ORT Debug Report ==============="
+    ort report --ort-file=.ort/advisor-result.yml --output-dir=.ort --report-formats="WebApp,HtmlTemplate"
+    duration=$SECONDS
+    echo "until ort analyze $(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed."
+    #"CtrlXAutomation,CycloneDx,DocBookTemplate,EvaluatedModel,FossId,FossIdSnippet,GitLabLicenseModel,HtmlTemplate,ManPageTemplate,Opossum,PdfTemplate,PlainTextTemplate,SpdxDocument,StaticHtml,TrustSource,WebApp"
+
+    echo "======================================================================="
+    echo "| Rectify the error present in .ort/scan-report-web-app.html          |"
+    echo "| Rectify the error present in .ort/AsciiDoc_disclosure_document.html |"
+    echo "| run 'bash .ort.sh report' to get final report                       |"
+    echo "======================================================================="
 fi
 if [[ $1 == "scan" ]]; then
     echo "==========================================================================================================="
@@ -71,7 +104,7 @@ if [[ $1 == "scan" ]]; then
     echo "======================================================================="
     echo "| Rectify the error present in .ort/scan-report-web-app.html          |"
     echo "| Rectify the error present in .ort/AsciiDoc_disclosure_document.html |"
-	echo "| run 'bash .ort.sh report' to get final report                       |"
+    echo "| run 'bash .ort.sh report' to get final report                       |"
     echo "======================================================================="
 
     #if [ -f ".ort/scan-report-web-app.html" ]; then
