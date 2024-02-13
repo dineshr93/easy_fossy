@@ -44,7 +44,8 @@ f = fossy("config.ini", "test")
 
 # create_new_user_group,
 # get_user_group,
-
+# get_all_users()
+# get_user_by_id(user_id=3)
 # get_all_jobs,
 # get_job_info_by_id,
 # generate_and_get_desired_report_for_uploadid,

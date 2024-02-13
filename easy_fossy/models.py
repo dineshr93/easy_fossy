@@ -115,6 +115,7 @@ class Info(BaseModel):
 class AccessLevel(Enum):
     none = 'none'
     read_only = 'read_only'
+    clearing_admin = 'clearing_admin'
     read_write = 'read_write'
     admin = 'admin'
 
@@ -604,7 +605,7 @@ class User(BaseModel):
     rootFolderId: Optional[float] = Field(
         None, description='root folder id of the user'
     )
-    emailNotification: Optional[bool] = Field(
+    emailNotification: Optional[str]  = Field(
         None, description='enable email notification when upload scan completes'
     )
     agents: Optional[Analysis] = None

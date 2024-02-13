@@ -15,7 +15,7 @@ pip install easy-fossy
 Requires
 
 ```
-#### 1. python 3.10
+#### 1. python 3.9
 ```
 
 (uses latest structural matching case patterms)

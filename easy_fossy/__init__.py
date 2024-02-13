@@ -135,6 +135,77 @@ class easy_fossy:
             case _:
                 print(response.text)
 
+    def get_all_users(self) -> List[User]:
+        """List of users present in the given instance"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "limit": "1000",
+            "page": "1",
+            "groupName": self.group_name,
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("users"), data=payload, headers=headers
+        )
+
+        match response.json():
+            case [*args]:
+                # users = [print(user) and User(**user) for user in args]
+                users = [User(**user) for user in args]
+                # for j in jobs:
+                #     print(jobs)
+                return users
+            case _:
+                print(response.text)
+
+    # get_all_users()
+
+    def get_user_by_id(self, user_id: int) -> User:
+        """give the user_id to get the
+        {
+        "id": 0,
+        "name": "string",
+        "description": "string",
+        "email": "string",
+        "accessLevel": "none",
+        "rootFolderId": 0,
+        "emailNotification": true,
+        "defaultGroup": 0,
+        "agents": {
+            "bucket": true,
+            "copyright_email_author": true,
+            "ecc": true,
+            "keyword": true,
+            "mime": true,
+            "monk": true,
+            "nomos": true,
+            "ojo": true,
+            "package": true,
+            "reso": true,
+            "heritage": true
+        },
+        "defaultBucketpool": 0
+        }
+        """
+        payload = ""
+        headers = {"accept": "application/json", "Authorization": self.bearer_token}
+
+        response = requests.request(
+            "GET", self.url + str(f"users/{user_id}"), data=payload, headers=headers
+        )
+
+        match response.json():
+            case {**user}:
+                user = User(**user)
+                # print(user)
+                return user
+            case _:
+                print(response.text)
+
+        # get_user_by_id(user_id=3)
+                
     def get_token_by_uname_pwd(self) -> str:
         """Get the token via user name and password in the config"""
         payload = {
@@ -195,7 +266,7 @@ class easy_fossy:
             case _:
                 print(response.text)
 
-    # get_all_jobs(group_name)
+    # get_all_jobs()
 
     def get_job_info_by_id(self, job_id: int) -> Job:
         """give the job_id to get the
