@@ -134,6 +134,42 @@ class easy_fossy:
                 return new_group_name
             case _:
                 print(response.text)
+             
+    def get_token_by_uname_pwd(self) -> str:
+        """Get the token via user name and password in the config"""
+        payload = {
+            "username": self.config.get("uname"),
+            "password": self.config.get("pwd"),
+            "token_name": str("created_viaapi_on_")
+            + str(self.now.strftime(self.dt_format)),
+            "token_scope": self.config.get("access"),
+            "token_expire": str(self.token_expire_yyyy_mm_dd),
+        }
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+        }
+
+        response = requests.request(
+            "POST", self.url + str("tokens"), json=payload, headers=headers
+        )
+
+        match response.json():
+            case {"Authorization": self.bearer_token}:
+                self.config["bearer_token"] = self.bearer_token
+                self.config["token_expire"] = str(self.token_expire_yyyy_mm_dd)
+                with open(self.config_file, "w") as cf:
+                    self.config_parser.write(cf)
+                self.bearer_token = self.config.get("bearer_token")
+                if self.bearer_token != "":
+                    print(
+                        f"Added token to bearer_token param of your config {self.bearer_token}"
+                    )
+                return self.bearer_token
+            case _:
+                print("Error while getting token")
+                print(response.text)
+                sys.exit(1)
 
     def get_all_users(self) -> List[User]:
         """List of users present in the given instance"""
@@ -205,42 +241,8 @@ class easy_fossy:
                 print(response.text)
 
         # get_user_by_id(user_id=3)
-                
-    def get_token_by_uname_pwd(self) -> str:
-        """Get the token via user name and password in the config"""
-        payload = {
-            "username": self.config.get("uname"),
-            "password": self.config.get("pwd"),
-            "token_name": str("created_viaapi_on_")
-            + str(self.now.strftime(self.dt_format)),
-            "token_scope": self.config.get("access"),
-            "token_expire": str(self.token_expire_yyyy_mm_dd),
-        }
-        headers = {
-            "accept": "application/json",
-            "Content-Type": "application/json",
-        }
-
-        response = requests.request(
-            "POST", self.url + str("tokens"), json=payload, headers=headers
-        )
-
-        match response.json():
-            case {"Authorization": self.bearer_token}:
-                self.config["bearer_token"] = self.bearer_token
-                self.config["token_expire"] = str(self.token_expire_yyyy_mm_dd)
-                with open(self.config_file, "w") as cf:
-                    self.config_parser.write(cf)
-                self.bearer_token = self.config.get("bearer_token")
-                if self.bearer_token != "":
-                    print(
-                        f"Added token to bearer_token param of your config {self.bearer_token}"
-                    )
-                return self.bearer_token
-            case _:
-                print("Error while getting token")
-                print(response.text)
-                sys.exit(1)
+   
+    # get_user_by_id(user_id=)
 
     def get_all_jobs(self) -> List[Job]:
         """List of jobs present in the given instance"""
