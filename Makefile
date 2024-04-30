@@ -29,13 +29,13 @@ build: clean
 
 publish:
 	poetry publish
+	twine upload --repository pypi dist/* --config-file .pypirc
 
 
 test: build
 	echo "===========Testing... make sure command is -> make test v=0.8.0 f=FILE==============="
-	pip uninstall -y easy_fossy
-	pip install dist/easy_fossy-${v}.tar.gz
-	py example.py
+	pip3 uninstall -y easy_fossy
+	pip3 install dist/easy_fossy-${v}.tar.gz
 
 clean:
 	${RM_RF_CMD} ${PROJ_DIST}/*

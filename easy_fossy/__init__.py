@@ -134,7 +134,7 @@ class easy_fossy:
                 return new_group_name
             case _:
                 print(response.text)
-             
+
     def get_token_by_uname_pwd(self) -> str:
         """Get the token via user name and password in the config"""
         payload = {
@@ -241,9 +241,8 @@ class easy_fossy:
                 print(response.text)
 
         # get_user_by_id(user_id=3)
-   
-    # get_user_by_id(user_id=)
 
+    # get_user_by_id(user_id=)
     def get_all_jobs(self) -> List[Job]:
         """List of jobs present in the given instance"""
         payload = ""
@@ -680,6 +679,56 @@ class easy_fossy:
     # get_all_uploads_based_on(folder_id=1, is_recursive=True,
     #                          search_pattern_key='', upload_status=ClearingStatus.Open, assignee='', since_yyyy_mm_dd='', page=1, limit=1000)
 
+    def get_all_uploads_based_on_common_assignee(
+        self,
+        folder_id: int,
+        is_recursive: bool,
+        search_pattern_key: str,
+        upload_status: ClearingStatus,
+        # assignee: str,
+        since_yyyy_mm_dd: str,
+        page: int,
+        limit: int,
+    ) -> List[Upload]:
+        """get_all_uploads_based_on(folder_id: int, is_recursive: bool, search_pattern_key: str, upload_status: ClearingStatus, assignee: str, since_yyyy_mm_dd: str, page: int, limit: int) -> List[Upload]"""
+        querystring = {
+            "folderId": folder_id,
+            "recursive": is_recursive,
+            "name": search_pattern_key,
+            "status": upload_status.name,
+            # "assignee": assignee,
+            "since": since_yyyy_mm_dd,
+        }
+
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "groupName": self.group_name,
+            "page": str(page),
+            "limit": str(limit),
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET",
+            self.url + str("uploads"),
+            data=payload,
+            headers=headers,
+            params=querystring,
+        )
+
+        match response.json():
+            case [*args]:
+                uploads = [Upload(**upload) for upload in args]
+                # for upload in uploads:
+                #     print(upload)
+                return uploads
+            case _:
+                print(response.text)
+
+    # get_all_uploads_based_on_common_assignee(folder_id=1, is_recursive=True,
+    #                          search_pattern_key='', upload_status=ClearingStatus.Open, since_yyyy_mm_dd='', page=1, limit=1000)
+
     def get_licenses_found_by_agents_for_uploadid(
         self, upload_id: int, agents: List[str], show_directories: bool
     ) -> UploadLicenses | Info:
@@ -784,7 +833,7 @@ class easy_fossy:
 
     # get_upload_id_by_local_package_upload(
     #     file_path='uploads/commons-io-2.11.0-src.zip', folder_id=1, upload_desc='commons-io-2.11.0', visibility=Public.public)
-
+    @staticmethod
     def check_url_exists(url: str):
         """
         Checks if a url exists
@@ -991,21 +1040,26 @@ class easy_fossy:
         if not Path(file_path).exists():
             print(f"File path {file_path} doesn't exist")
 
-        uploads: List[Upload] = self.get_all_uploads_based_on(
+        uploads: List[Upload] = self.get_all_uploads_based_on_common_assignee(
             folder_id=folder_id,
             is_recursive=True,
             search_pattern_key="",
             upload_status=ClearingStatus.Open,
-            assignee="",
+            # assignee="",
             since_yyyy_mm_dd="",
             page=1,
             limit=1000,
-            group_name=self.group_name,
+            # group_name=self.group_name,
         )
         file_name = file_path.split("/").pop()
 
-        upload_id = [u.id for u in uploads if file_name == u.uploadname]
-        size = len(upload_id)
+        # if folder is empty uploads will be None
+        size = 0
+        if uploads == None:
+            size = 0
+        else:
+            upload_id = [u.id for u in uploads if file_name == u.uploadname]
+            size = len(upload_id)
         is_present_uploadID = False
         if size > 1:
             is_present_uploadID = True
@@ -1024,22 +1078,30 @@ class easy_fossy:
                 folder_id=folder_id,
                 upload_desc=file_name,
                 visibility=Public.protected,
-                group_name=group_name,
+                # group_name=group_name,
             )
 
         if is_present_uploadID:
-            jobs: List[Job] = [
-                j for j in self.get_all_jobs(self.group_name) if j.uploadId == upload_id
-            ]
+            # get_all_jobs() is very slow because of huge size so just returning message
+            # jobs: List[Job] = [
+            #     j for j in self.get_all_jobs() if j.uploadId == upload_id
+            # ]
 
-            if len(jobs) >= 1:
-                print(f"Multiple jobs exists for same upload_id: {upload_id}")
-                job = jobs.pop()
-                print(f" Returning Existing Job ID :{job.id}")
-                return job.id
+            # if len(jobs) >= 1:
+            #     print(f"Multiple jobs exists for same upload_id: {upload_id}")
+            #     job = jobs.pop()
+            #     print(f" Returning Existing Job ID :{job.id}")
+            #     return job.id
+            # else:
+            #     job = jobs.pop()
+            #     print(f" Returning Existing Job ID :{job.id}")
+            #     return job.id
+            print(f"File {file_name} already present in folder id {folder_id}")
         else:
             info = self.trigger_analysis_for_upload_id(
-                upload_id=upload_id, folder_id=folder_id, group_name=self.group_name
+                upload_id=upload_id,
+                folder_id=folder_id,
+                # group_name=self.group_name
             )
             print(f"Computed new Job ID is :{info.message}")
             return info.message
@@ -1054,22 +1116,38 @@ class easy_fossy:
         if not self.check_url_exists(file_download_url):
             print(f"git url {file_download_url} is malformed")
 
-        uploads: List[Upload] = self.get_all_uploads_based_on(
+        uploads: List[Upload] = self.get_all_uploads_based_on_common_assignee(
             folder_id=folder_id,
             is_recursive=True,
             search_pattern_key="",
             upload_status=ClearingStatus.Open,
-            assignee="",
+            # assignee="",
             since_yyyy_mm_dd="",
             page=1,
             limit=1000,
-            group_name=self.group_name,
+            # group_name=self.group_name,
         )
+        # if folder is empty uploads will be None
+        size = 0
+        upload_id: any
+        if uploads == None:
+            print("uploads is None")
+            size = 0
+        else:
+            upload_id = [u.id for u in uploads if file_name == u.uploadname]
+            # upload_id = []
+            # for u in uploads:
+            #     if file_name == u.uploadname:
+            #         # print(
+            #         #     f"Comparing file_name: {file_name} == u.uploadname: {u.uploadname}"
+            #         # )
+            #         upload_id.append(u.id)
 
-        upload_id = [u.id for u in uploads if file_name == u.uploadname]
-        size = len(upload_id)
+            size = len(upload_id)
+            # print(f"Existing upload size: {size}")
         is_present_uploadID = False
         if size > 1:
+            # print("section size > 1")
             is_present_uploadID = True
             print(f"{size} no of duplicates are there with ids {upload_id}")
             print(
@@ -1077,32 +1155,40 @@ class easy_fossy:
             )
             sys.exit(1)
         elif size == 1:
+            # print("section size ==  1")
             is_present_uploadID = True
             upload_id = upload_id[0]
         else:
+            # print("section else size ")
             # no upload_id is there
             upload_id = self.get_upload_id_by_download_url_package_upload(
                 file_download_url=file_download_url,
                 file_name=file_name,
-                folder_id=1,
+                folder_id=folder_id,
                 upload_desc=file_name,
                 visibility=Public.public,
-                group_name=group_name,
+                # group_name=self.group_name,
             )
 
         if is_present_uploadID:
-            jobs: List[Job] = [
-                j for j in self.get_all_jobs(self.group_name) if j.uploadId == upload_id
-            ]
+            # get_all_jobs() is very slow because of huge size so just returning message
+            # jobs: List[Job] = [
+            #     j for j in self.get_all_jobs() if j.uploadId == upload_id
+            # ]
 
-            if len(jobs) >= 1:
-                print(f"Multiple jobs exists for same upload_id: {upload_id}")
-                job = jobs.pop()
-                print(f" Returning Existing Job ID :{job.id}")
-                return job.id
+            # if len(jobs) >= 1:
+            #     print(f"Multiple jobs exists for same upload_id: {upload_id}")
+            #     job = jobs.pop()
+            #     print(f" Returning Existing Job ID :{job.id}")
+            #     return job.id
+            # else:
+            #     job = jobs.pop()
+            #     print(f" Returning Existing Job ID :{job.id}")
+            #     return job.id
+            print(f"File {file_name} already present in folder id {folder_id}")
         else:
             info = self.trigger_analysis_for_upload_id(
-                upload_id=upload_id, folder_id=folder_id, group_name=group_name
+                upload_id=upload_id, folder_id=folder_id
             )
             print(f"Computed new Job ID is :{info.message}")
             return info.message
@@ -1120,20 +1206,25 @@ class easy_fossy:
         file_name = git_url.split("/").pop()
         print(file_name)
 
-        uploads: List[Upload] = self.get_all_uploads_based_on(
+        uploads: List[Upload] = self.get_all_uploads_based_on_common_assignee(
             folder_id=folder_id,
             is_recursive=True,
             search_pattern_key="",
             upload_status=ClearingStatus.Open,
-            assignee="",
+            # assignee="",
             since_yyyy_mm_dd="",
             page=1,
             limit=1000,
-            group_name=self.group_name,
+            # group_name=self.group_name,
         )
 
-        upload_id = [u.id for u in uploads if file_name == u.uploadname]
-        size = len(upload_id)
+        # if folder is empty uploads will be None
+        size = 0
+        if uploads == None:
+            size = 0
+        else:
+            upload_id = [u.id for u in uploads if file_name == u.uploadname]
+            size = len(upload_id)
         is_present_uploadID = False
         if size > 1:
             is_present_uploadID = True
@@ -1151,25 +1242,33 @@ class easy_fossy:
                 git_url=git_url,
                 branch_name=branch_name,
                 upload_name=file_name,
-                folder_id=1,
+                folder_id=folder_id,
                 upload_desc="",
                 visibility=Public.public,
-                group_name=self.group_name,
+                # group_name=self.group_name,
             )
 
         if is_present_uploadID:
-            jobs: List[Job] = [
-                j for j in self.get_all_jobs(self.group_name) if j.uploadId == upload_id
-            ]
+            # get_all_jobs() is very slow because of huge size so just returning message
+            # jobs: List[Job] = [
+            #     j for j in self.get_all_jobs() if j.uploadId == upload_id
+            # ]
 
-            if len(jobs) >= 1:
-                print(f"Multiple jobs exists for same upload_id: {upload_id}")
-                job = jobs.pop()
-                print(f" Returning Existing Job ID :{job.id}")
-                return job.id
+            # if len(jobs) >= 1:
+            #     print(f"Multiple jobs exists for same upload_id: {upload_id}")
+            #     job = jobs.pop()
+            #     print(f" Returning Existing Job ID :{job.id}")
+            #     return job.id
+            # else:
+            #     job = jobs.pop()
+            #     print(f" Returning Existing Job ID :{job.id}")
+            #     return job.id
+            print(f"File {file_name} already present in folder id {folder_id}")
         else:
             info = self.trigger_analysis_for_upload_id(
-                upload_id=upload_id, folder_id=folder_id, group_name=self.group_name
+                upload_id=upload_id,
+                folder_id=folder_id,
+                # group_name=self.group_name
             )
             print(f"Computed new Job ID is :{info.message}")
             return info.message
