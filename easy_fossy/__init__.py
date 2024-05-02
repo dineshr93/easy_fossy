@@ -7,6 +7,7 @@ from .models import (
     Action1,
     Agent,
     ApiInfo,
+    Copyright,
     File,
     Folder,
     Group,
@@ -332,6 +333,112 @@ class easy_fossy:
 
     # get_job_info_by_upload_id(job_id=3)
 
+    def get_upload_tree_id_by_upload_id(self, upload_id: int) -> Info:
+        """give the upload_id to get the upload_tree_id
+        {
+            "code": 200,
+            "message": 18852769,
+            "type": "INFO"
+        }
+        """
+        payload = ""
+        headers = {"accept": "application/json", "Authorization": self.bearer_token}
+
+        response = requests.request(
+            "GET",
+            self.url + str(f"uploads/{upload_id}/topitem"),
+            data=payload,
+            headers=headers,
+        )
+
+        match response.json():
+            case {**info}:
+                info = Info(**info)
+                # print(info)
+                return info
+            case _:
+                print(response.text)
+
+    # get_upload_tree_id_by_upload_id(upload_id=3)
+
+    def get_copyrights_by_upload_id_uploadtree_id(
+        self, upload_id: int, upload_tree_id: int
+    ) -> List[Copyright]:
+        """give the upload_id to get the upload_tree_id
+        [{
+            "content": "Copyright (C) 2008 dinesh Inc.",
+            "hash": "7414e55329991506a99fe2fb3383bbee",
+            "count": 28
+        },
+        {
+            "content": "Copyright (C) 2009 ravi Inc.",
+            "hash": "5c1af30f2523e1257bf8b7dba3e79776",
+            "count": 4
+        }]
+        """
+        payload = ""
+        headers = {"accept": "application/json", "Authorization": self.bearer_token}
+
+        response = requests.request(
+            "GET",
+            self.url + str(f"uploads/{upload_id}/item/{upload_tree_id}/copyrights"),
+            data=payload,
+            headers=headers,
+        )
+
+        match response.json():
+            case [*args]:
+                copyrights = [Copyright(**copyright) for copyright in args]
+                # for j in jobs:
+                #     print(jobs)
+                return copyrights
+            case _:
+                print(response.text)
+
+    # get_copyrights_by_upload_id_uploadtree_id(upload_id=3)
+
+    def get_copyrights_by_upload_id(self, upload_id: int) -> List[Copyright]:
+        """give the upload_id to get the upload_tree_id
+        [{
+            "content": "Copyright (C) 2008 dinesh Inc.",
+            "hash": "7414e55329991506a99fe2fb3383bbee",
+            "count": 28
+        },
+        {
+            "content": "Copyright (C) 2009 ravi Inc.",
+            "hash": "5c1af30f2523e1257bf8b7dba3e79776",
+            "count": 4
+        }]
+        """
+        payload = ""
+        headers = {"accept": "application/json", "Authorization": self.bearer_token}
+
+        upload_tree_id_info: Info = self.get_upload_tree_id_by_upload_id(
+            upload_id=upload_id
+        )
+        upload_tree_id = upload_tree_id_info.message
+
+        response = requests.request(
+            "GET",
+            self.url
+            + str(
+                f"uploads/{upload_id}/item/{upload_tree_id}/copyrights?status=active"
+            ),
+            data=payload,
+            headers=headers,
+        )
+
+        match response.json():
+            case [*args]:
+                copyrights = [Copyright(**copyright) for copyright in args]
+                # for j in jobs:
+                #     print(jobs)
+                return copyrights
+            case _:
+                print(response.text)
+
+    # get_copyrights_by_upload_id(upload_id=3)
+
     def generate_and_get_desired_report_for_uploadid(
         self, upload_id: int, report_format: ReportFormat
     ):
@@ -645,9 +752,12 @@ class easy_fossy:
             "folderId": folder_id,
             "recursive": is_recursive,
             "name": search_pattern_key,
-            "status": upload_status.name,
+            "status": upload_status,
             "assignee": assignee,
             "since": since_yyyy_mm_dd,
+            "page": page,
+            "limit": limit,
+            "groupName": self.group_name,
         }
 
         payload = ""
