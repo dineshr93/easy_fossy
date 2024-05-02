@@ -171,7 +171,9 @@ From 1.0.9
 --- returns list if even only data is there else it will return 'not found' string.
 
 ```
-
+```
+twine upload --repository pypi dist/* --config-file .pypirc
+```
 ### =====================================================================
 
 ### License: MIT
