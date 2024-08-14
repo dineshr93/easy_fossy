@@ -973,6 +973,8 @@ class easy_fossy:
             "uploadType": "url",
             "uploadDescription": upload_desc,
             "public": visibility.name,
+            "ignoreScm": "true",
+            "uploadType": "file",
             "Content-Type": m.content_type,
             "Authorization": self.bearer_token,
         }

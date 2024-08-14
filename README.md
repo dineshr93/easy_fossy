@@ -170,6 +170,9 @@ From 1.0.9
 --- give only one hash of any of 3 format sha1 or sha256 or md5
 --- returns list if even only data is there else it will return 'not found' string.
 
+30  get_all_users()
+
+31  get_user_by_id(user_id=)
 ```
 ```
 twine upload --repository pypi dist/* --config-file .pypirc
