@@ -129,7 +129,7 @@ class easy_fossy:
         }
 
         response = requests.request(
-            "POST", self.url + str("groups"), data=payload, headers=headers
+            "POST", self.url + str("groups"), data=payload, headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -234,7 +234,7 @@ class easy_fossy:
         headers = {"accept": "application/json", "Authorization": self.bearer_token}
 
         response = requests.request(
-            "GET", self.url + str(f"users/{user_id}"), data=payload, headers=headers
+            "GET", self.url + str(f"users/{user_id}"), data=payload, headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -260,7 +260,7 @@ class easy_fossy:
         }
 
         response = requests.request(
-            "GET", self.url + str("jobs"), data=payload, headers=headers
+            "GET", self.url + str("jobs"), data=payload, headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -291,7 +291,7 @@ class easy_fossy:
         headers = {"accept": "application/json", "Authorization": self.bearer_token}
 
         response = requests.request(
-            "GET", self.url + str(f"jobs/{job_id}"), data=payload, headers=headers
+            "GET", self.url + str(f"jobs/{job_id}"), data=payload, headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -425,7 +425,7 @@ class easy_fossy:
             "GET",
             self.url + str(f"uploads/{upload_id}/item/{upload_tree_id}/licenses"),
             data=payload,
-            headers=headers,
+            headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -459,7 +459,7 @@ class easy_fossy:
             "GET",
             self.url + str(f"uploads/{upload_id}/licenses/histogram"),
             data=payload,
-            headers=headers,
+            headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -538,7 +538,7 @@ class easy_fossy:
         report_info: Info = None
         report_id: int = None
         response = requests.request(
-            "GET", self.url + str("report"), data=payload, headers=headers
+            "GET", self.url + str("report"), data=payload, headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -608,7 +608,7 @@ class easy_fossy:
         }
 
         response = requests.request(
-            "GET", self.url + str("folders"), data=payload, headers=headers
+            "GET", self.url + str("folders"), data=payload, headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -695,7 +695,7 @@ class easy_fossy:
         }
 
         response = requests.request(
-            "POST", self.url + str("folders"), data=payload, headers=headers
+            "POST", self.url + str("folders"), data=payload, headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -753,7 +753,7 @@ class easy_fossy:
         }
 
         response = requests.request(
-            "PUT", self.url + str("folders/{folder_id}"), data=payload, headers=headers
+            "PUT", self.url + str("folders/{folder_id}"), data=payload, headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -994,7 +994,7 @@ class easy_fossy:
             "Content-Type": m.content_type,
             "Authorization": self.bearer_token,
         }
-        response = requests.post(self.url + str("uploads"), data=m, headers=headers)
+        response = requests.post(self.url + str("uploads"), data=m, headers=headers,verify=self.verify)
 
         timeout = 20
         timewait = 0.2
@@ -1083,7 +1083,7 @@ class easy_fossy:
             "Authorization": self.bearer_token,
         }
         response = requests.post(
-            self.url + str("uploads"), data=json.dumps(m), headers=headers
+            self.url + str("uploads"), data=json.dumps(m), headers=headers,verify=self.verify
         )
 
         timeout = 20
@@ -1150,7 +1150,7 @@ class easy_fossy:
         }
 
         response = requests.request(
-            "POST", self.url + str("uploads"), json=payload, headers=headers
+            "POST", self.url + str("uploads"), json=payload, headers=headers,verify=self.verify
         )
 
         # print(response.status_code)
@@ -1165,7 +1165,7 @@ class easy_fossy:
             print(f"waiting for {timewait} sec")
             time.sleep(timewait)
             response = requests.request(
-                "POST", self.url + str("uploads"), json=payload, headers=headers
+                "POST", self.url + str("uploads"), json=payload, headers=headers,verify=self.verify
             )
             print(response.json())
             timer = timer + timewait
@@ -1225,7 +1225,7 @@ class easy_fossy:
         }
 
         response = requests.request(
-            "POST", self.url + str("jobs"), json=payload, headers=headers
+            "POST", self.url + str("jobs"), json=payload, headers=headers,verify=self.verify
         )
         timeout = 50
         timewait = 0.5
@@ -1234,7 +1234,7 @@ class easy_fossy:
             print(f"waiting for {timewait} sec")
             time.sleep(timewait)
             response = requests.request(
-                "POST", self.url + str("jobs"), json=payload, headers=headers
+                "POST", self.url + str("jobs"), json=payload, headers=headers,verify=self.verify
             )
             #print(response.text)
             timer = timer + timewait
@@ -1722,7 +1722,7 @@ class easy_fossy:
             "Authorization": self.bearer_token,
         }
 
-        response = requests.request("POST", self.url, json=payload, headers=headers)
+        response = requests.request("POST", self.url, json=payload, headers=headers,verify=self.verify)
 
         match response.json():
             case {**info} if response.status_code == 200:
@@ -1769,7 +1769,7 @@ class easy_fossy:
         }
 
         response = requests.request(
-            "GET", self.url + str("search"), data=payload, headers=headers
+            "GET", self.url + str("search"), data=payload, headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -1818,7 +1818,7 @@ class easy_fossy:
         }
 
         response = requests.request(
-            "POST", self.url + str("filesearch"), json=payload, headers=headers
+            "POST", self.url + str("filesearch"), json=payload, headers=headers,verify=self.verify
         )
 
         match response.json():
