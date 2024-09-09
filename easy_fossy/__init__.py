@@ -1,6 +1,7 @@
 from .models import (
     License,
     Public,
+    LicenseCount,
     Findings,
     ClearingStatus,
     Action,
@@ -43,6 +44,7 @@ from .models import (
 )
 
 import requests
+import json
 import time
 import configparser
 import datetime
@@ -398,6 +400,78 @@ class easy_fossy:
                 print(response.text)
 
     # get_copyrights_by_upload_id_uploadtree_id(upload_id=3)
+    def get_licenses_by_upload_id_uploadtree_id(
+        self, upload_id: int, upload_tree_id: int
+    ) -> List[License]:
+        """give the upload_id to get the upload_tree_id
+        [{
+            "content": "Copyright (C) 2008 dinesh Inc.",
+            "hash": "7414e55329991506a99fe2fb3383bbee",
+            "count": 28
+        },
+        {
+            "content": "Copyright (C) 2009 ravi Inc.",
+            "hash": "5c1af30f2523e1257bf8b7dba3e79776",
+            "count": 4
+        }]
+        """
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET",
+            self.url + str(f"uploads/{upload_id}/item/{upload_tree_id}/licenses"),
+            data=payload,
+            headers=headers,
+        )
+
+        match response.json():
+            case [*args]:
+                licenses = [License(**license) for license in args]
+                # for j in jobs:
+                #     print(jobs)
+                return licenses
+            case _:
+                print(response.text)
+
+    # get_licenses_by_upload_id_uploadtree_id(upload_id=3)
+
+    def get_licenses_by_upload_id(self, upload_id: int) -> List[LicenseCount]:
+        """give the upload_id to get the upload_tree_id
+        [{
+            "content": "Copyright (C) 2008 dinesh Inc.",
+            "hash": "7414e55329991506a99fe2fb3383bbee",
+            "count": 28
+        },
+        {
+            "content": "Copyright (C) 2009 ravi Inc.",
+            "hash": "5c1af30f2523e1257bf8b7dba3e79776",
+            "count": 4
+        }]
+        """
+        payload = ""
+        headers = {"accept": "application/json", "Authorization": self.bearer_token}
+
+        response = requests.request(
+            "GET",
+            self.url + str(f"uploads/{upload_id}/licenses/histogram"),
+            data=payload,
+            headers=headers,
+        )
+
+        match response.json():
+            case [*args]:
+                histogram = [LicenseCount(**licensecount) for licensecount in args]
+                # for j in jobs:
+                #     print(jobs)
+                return histogram
+            case _:
+                print(response.text)
+
+    # get_licenses_by_upload_id(upload_id=3)
 
     def get_copyrights_by_upload_id(self, upload_id: int) -> List[Copyright]:
         """give the upload_id to get the upload_tree_id
@@ -969,7 +1043,34 @@ class easy_fossy:
         if not self.check_url_exists(file_download_url):
             print(f"git url {file_download_url} is malformed")
 
-        m = MultipartEncoder(fields={"url": file_download_url, "name": file_name})
+        # m = MultipartEncoder(fields={"url": file_download_url, "name": file_name})
+        m = {
+            "location": {
+                "url": file_download_url,
+                "name": file_name,
+            },
+            "scanOptions": {
+                "analysis": {
+                    "bucket": True,
+                    "copyright_email_author": True,
+                    "ecc": True,
+                    "keyword": True,
+                    "mime": True,
+                    "monk": True,
+                    "nomos": True,
+                    "ojo": True,
+                    "package": True,
+                    "reso": True,
+                    "heritage": False,
+                },
+                "decider": {
+                    "nomos_monk": True,
+                    "bulk_reused": True,
+                    "new_scanner": True,
+                    "ojo_decider": True,
+                },
+            },
+        }
         headers = {
             # "accept": "application/json",
             "folderId": str(folder_id),
@@ -981,7 +1082,9 @@ class easy_fossy:
             "Content-Type": m.content_type,
             "Authorization": self.bearer_token,
         }
-        response = requests.post(self.url + str("uploads"), data=m, headers=headers)
+        response = requests.post(
+            self.url + str("uploads"), data=json.dumps(m), headers=headers
+        )
 
         timeout = 20
         timewait = 0.2
@@ -1002,7 +1105,7 @@ class easy_fossy:
         match response.json():
             case {**info}:
                 report_info = Info(**info)
-                print(f"upload id is {report_info.message}")
+                #print(f"upload id is {report_info.message}")
                 return report_info.message
             case _:
                 print(response.text)
@@ -1133,7 +1236,7 @@ class easy_fossy:
             response = requests.request(
                 "POST", self.url + str("jobs"), json=payload, headers=headers
             )
-            print(response.text)
+            #print(response.text)
             timer = timer + timewait
             if timer > timeout:
                 break
