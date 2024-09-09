@@ -289,6 +289,30 @@ class Findings(BaseModel):
     )
 
 
+class Source(BaseModel):
+    name: str
+    clearingId: int
+    agentId: int
+    highlightId: int
+    page: int
+    percentage: int
+
+
+class Licenses(BaseModel):
+    __root__: List[License]
+
+
+class Histogram(BaseModel):
+    licenseCounts: List[LicenseCount]
+
+
+class LicenseCount(BaseModel):
+    id: int
+    name: str
+    scannerCount: int
+    concludedCount: int
+
+
 class License(BaseModel):
     shortName: Optional[str] = Field(None, description="Short name", example="MIT")
     fullName: Optional[str] = Field(
@@ -306,6 +330,11 @@ class License(BaseModel):
     )
     risk: Optional[int] = Field(None, description="Risk level", example=3)
     isCandidate: Optional[bool] = Field(None, description="Is the license a candidate?")
+    sources: List[Source]
+    comment: str
+    acknowledgement: str
+    isMainLicense: bool
+    isRemoved: bool
 
 
 class Group(BaseModel):
