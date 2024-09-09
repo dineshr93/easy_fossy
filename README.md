@@ -73,7 +73,7 @@ To set the location of config.ini file and get the instance to access all the me
     use_fossy_to=fossy('location/config.ini','test')
 
 
-    use_fossy_to=fossy('location/config.ini','prod')
+    use_fossy_to=fossy('location/config.ini','prod',verify=True)
 
 
 1. use_fossy_to.delete_uploads_by_upload_id(upload_id=7)

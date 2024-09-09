@@ -53,9 +53,11 @@ from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 
 class easy_fossy:
-    def __init__(self, config_file: str, server_to_use: str = "test"):
+    def __init__(self, config_file: str, server_to_use: str = "test", verify: bool = False):
         self.config_file = config_file
         self.server = server_to_use
+        self.verify = verify
+        
         # config_file = 'config.ini'
         if not Path(config_file).exists():
             print(
@@ -67,7 +69,7 @@ class easy_fossy:
 
         self.config = self.config_parser[self.server]
         self.url = self.config.get("url")
-
+        
         if not self.url.endswith("/"):
             self.url = self.url + "/"
 
@@ -184,7 +186,7 @@ class easy_fossy:
         }
 
         response = requests.request(
-            "GET", self.url + str("users"), data=payload, headers=headers
+            "GET", self.url + str("users"), data=payload, headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -320,7 +322,7 @@ class easy_fossy:
             "GET",
             self.url + str(f"jobs?upload={upload_id}"),
             data=payload,
-            headers=headers,
+            headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -348,7 +350,7 @@ class easy_fossy:
             "GET",
             self.url + str(f"uploads/{upload_id}/topitem"),
             data=payload,
-            headers=headers,
+            headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -383,7 +385,7 @@ class easy_fossy:
             "GET",
             self.url + str(f"uploads/{upload_id}/item/{upload_tree_id}/copyrights"),
             data=payload,
-            headers=headers,
+            headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -425,7 +427,7 @@ class easy_fossy:
                 f"uploads/{upload_id}/item/{upload_tree_id}/copyrights?status=active"
             ),
             data=payload,
-            headers=headers,
+            headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -490,7 +492,7 @@ class easy_fossy:
             "GET",
             self.url + str("report/") + str(report_id),
             data=payload,
-            headers=headers,
+            headers=headers,verify=self.verify
         )
         while response.status_code != 200:
 
@@ -500,7 +502,7 @@ class easy_fossy:
                 "GET",
                 self.url + str(f"report/{report_id}"),
                 data=payload,
-                headers=headers,
+                headers=headers,verify=self.verify
             )
             if timer > timeout:
                 break
@@ -560,7 +562,7 @@ class easy_fossy:
             "GET",
             self.url + str("folders/") + str(folder_id),
             data=payload,
-            headers=headers,
+            headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -590,7 +592,7 @@ class easy_fossy:
             "PATCH",
             self.url + str(f"folders/{folder_id}"),
             data=payload,
-            headers=headers,
+            headers=headers,verify=self.verify
         )
         match response.json():
             case {**info}:
@@ -649,7 +651,7 @@ class easy_fossy:
             "DELETE",
             self.url + str("folders/{folder_id}"),
             data=payload,
-            headers=headers,
+            headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -724,7 +726,7 @@ class easy_fossy:
             "GET",
             self.url + str(f"uploads/{upload_id}/summary"),
             data=payload,
-            headers=headers,
+            headers=headers,verify=self.verify
         )
         match response.json():
             case {**info}:
@@ -773,7 +775,7 @@ class easy_fossy:
             "GET",
             self.url + str("uploads"),
             data=payload,
-            headers=headers,
+            headers=headers,verify=self.verify,
             params=querystring,
         )
 
@@ -823,7 +825,7 @@ class easy_fossy:
             "GET",
             self.url + str("uploads"),
             data=payload,
-            headers=headers,
+            headers=headers,verify=self.verify,
             params=querystring,
         )
 
@@ -863,7 +865,7 @@ class easy_fossy:
             "GET",
             self.url + str(f"uploads/{upload_id}/licenses"),
             data=payload,
-            headers=headers,
+            headers=headers,verify=self.verify,
             params=querystring,
         )
 
@@ -1402,7 +1404,7 @@ class easy_fossy:
             "DELETE",
             self.url + str(f"uploads/{upload_id}"),
             data=payload,
-            headers=headers,
+            headers=headers,verify=self.verify
         )
 
         match response.json():
@@ -1444,7 +1446,7 @@ class easy_fossy:
             "GET",
             self.url + str("license"),
             data=payload,
-            headers=headers,
+            headers=headers,verify=self.verify,
             params=querystring,
         )
 
@@ -1533,7 +1535,7 @@ class easy_fossy:
             "GET",
             self.url + str(f"license/{short_name}"),
             data=payload,
-            headers=headers,
+            headers=headers,verify=self.verify
         )
         match response.json():
             case {**license_info} if response.status_code == 200:
@@ -1577,7 +1579,7 @@ class easy_fossy:
             "PATCH",
             self.url + str(f"license/{short_name}"),
             json=payload,
-            headers=headers,
+            headers=headers,verify=self.verify
         )
 
         match response.json():
