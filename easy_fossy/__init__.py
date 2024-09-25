@@ -1079,14 +1079,14 @@ class easy_fossy:
             "uploadDescription": upload_desc,
             "public": visibility.name,
             "ignoreScm": "true",
-            "Content-Type": m.content_type,
+            "Content-Type": "application/json",
             "Authorization": self.bearer_token,
         }
         response = requests.post(
             self.url + str("uploads"), data=json.dumps(m), headers=headers,verify=self.verify
         )
 
-        timeout = 20
+        timeout = 50
         timewait = 0.2
         timer = 0
 
@@ -1094,7 +1094,7 @@ class easy_fossy:
 
             print(f"waiting for {timewait} sec")
             time.sleep(timewait)
-            response = requests.post(self.url + str("uploads"), data=m, headers=headers)
+            response = requests.post(self.url + str("uploads"), data=m, headers=headers,verify=self.verify)
             # print(response.text)
             timer = timer + timewait
             if timer > timeout:
@@ -1108,7 +1108,9 @@ class easy_fossy:
                 #print(f"upload id is {report_info.message}")
                 return report_info.message
             case _:
+                print("=====================================")
                 print(response.text)
+                print("=====================================")
 
     # get_upload_id_by_download_url_package_upload(
     #     file_download_url='https://github.com/dineshr93/pageres/archive/refs/heads/master.zip', file_name='pageres', folder_id=1, upload_desc='commons-io-2.11.0', visibility=Public.public)
