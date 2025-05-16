@@ -1,3 +1,13 @@
+try:
+    import pydantic
+    PYDANTIC_V2 = hasattr(pydantic, "__version__") and pydantic.__version__.startswith("2")
+except ImportError:
+    PYDANTIC_V2 = False
+
+if PYDANTIC_V2:
+    # Add compatibility layer for pydantic v2
+    from .pydantic_compat import ensure_root_model, convert_model_data
+
 from .models import (
     License,
     Public,

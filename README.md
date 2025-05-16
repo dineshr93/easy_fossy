@@ -209,3 +209,302 @@ SOFTWARE.
 Font by Tehisa by Sealoung
 https://www.fontspace.com/category/snake
 License: Personal Use Free
+
+# EasyFossy with MCP
+
+This project integrates [easy_fossy](https://github.com/dineshr93/easy_fossy) with the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) to provide an API for accessing Fossology license scanning and management capabilities.
+
+## Features
+
+- Complete access to Fossology API via easy_fossy
+- Model Context Protocol (MCP) integration for programmatic access
+- FastAPI-based REST API
+- Support for uploading and analyzing packages from various sources (local files, URLs, Git)
+- License scanning and reporting
+- Folder and upload management
+- Search capabilities
+
+## Installation
+
+1. Clone this repository:
+
+```bash
+git clone https://github.com/yourusername/easy_fossy_mcp.git
+cd easy_fossy_mcp
+```
+
+2. Create a virtual environment:
+
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows, use: venv\Scripts\activate
+```
+
+3. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Configuration
+
+Create a `config.ini` file with your Fossology server details:
+
+```ini
+[test]
+url = http://fossology-test.com:port/repo/api/v1/
+uname = your_username
+pwd = your_password
+access = write
+bearer_token = Bearer your_token  # Will be populated automatically
+token_valdity_days = 365
+token_expire = 2023-10-29  # Will be updated automatically
+reports_location = reports/
+group_name = fossy
+
+[prod]
+url = http://fossology.com:port/repo/api/v1/
+uname = your_username
+pwd = your_password
+access = write
+bearer_token = Bearer your_token
+token_valdity_days = 365
+token_expire = 2023-10-29
+reports_location = reports/
+group_name = fossy
+```
+
+## Usage Options
+
+This project provides three ways to interact with Fossology:
+
+1. **MCP Server**: Direct integration with LLM applications
+2. **Python Client**: Programmatic access via the MCP client
+3. **REST API**: HTTP-based access via FastAPI
+
+### Option 1: MCP Server
+
+Running the MCP server directly:
+
+```bash
+python server.py
+```
+
+### Option 2: Python Client
+
+The `client_example.py` file demonstrates how to connect to and use the EasyFossy MCP server:
+
+```python
+import asyncio
+from client_example import EasyFossyClient
+
+async def run_example():
+    client = EasyFossyClient()
+    try:
+        # Connect to server
+        await client.connect()
+        
+        # Initialize EasyFossy with config file
+        result = await client.initialize_fossy("config.ini")
+        print(f"Initialized EasyFossy: {result}")
+        
+        # Get all folders
+        folders = await client.get_all_folders()
+        print(f"Found {len(folders)} folders")
+        
+        # Upload a Git repository
+        upload_id = await client.upload_git_package(
+            git_url="https://github.com/example/repo",
+            branch_name="main",
+            folder_id=1
+        )
+        print(f"Uploaded package with ID: {upload_id}")
+        
+        # Trigger analysis
+        analysis_result = await client.trigger_analysis(
+            upload_id=int(upload_id),
+            folder_id=1
+        )
+        print(f"Analysis triggered: {analysis_result}")
+        
+    finally:
+        # Disconnect
+        await client.disconnect()
+
+asyncio.run(run_example())
+```
+
+### Option 3: REST API
+
+The project also includes a FastAPI-based REST API that provides HTTP access to all the functionality:
+
+```bash
+# Start the API server
+python api.py
+```
+
+This will start the API server at http://localhost:8000. You can access the interactive Swagger documentation at http://localhost:8000/docs.
+
+#### API Endpoints
+
+The API provides the following endpoints:
+
+- **GET /** - Root endpoint, server status
+- **POST /initialize** - Initialize Fossology connection
+- **GET /folders** - Get all folders
+- **POST /folders** - Create a new folder
+- **GET /folders/{folder_id}** - Get folder information
+- **DELETE /folders/{folder_id}** - Delete a folder
+- **POST /uploads/git** - Upload a Git repository
+- **POST /uploads/{upload_id}/analyze** - Analyze an upload
+- **GET /uploads/{upload_id}** - Get upload summary
+- **POST /uploads/{upload_id}/report** - Generate a report
+- **GET /uploads/{upload_id}/licenses** - Get licenses in an upload
+- **GET /licenses** - Get all licenses
+- **GET /licenses/{short_name}** - Get license by short name
+- **GET /users** - Get all users
+- **GET /users/{user_id}** - Get user by ID
+- **GET /jobs** - Get all jobs
+- **GET /jobs/{job_id}** - Get job by ID
+
+#### Example API Usage
+
+```bash
+# Initialize Fossology connection
+curl -X POST "http://localhost:8000/initialize" \
+  -H "Content-Type: application/json" \
+  -d '{"config_file": "config.ini", "server_to_use": "test"}'
+
+# Get all folders
+curl -X GET "http://localhost:8000/folders"
+
+# Upload a Git repository
+curl -X POST "http://localhost:8000/uploads/git" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "git_url": "https://github.com/example/repo",
+    "branch_name": "main",
+    "folder_id": 1
+  }'
+
+# Analyze an upload
+curl -X POST "http://localhost:8000/uploads/123/analyze?folder_id=1"
+
+# Get licenses in an upload
+curl -X GET "http://localhost:8000/uploads/123/licenses"
+```
+
+## Supported Functions
+
+The MCP server provides the following tools:
+
+### Initialization
+- `initialize_fossy`: Initialize the easy_fossy instance with configuration
+
+### User Management
+- `get_all_users`: List all users
+- `get_user_by_id`: Get user details by ID
+
+### Job Management
+- `get_all_jobs`: List all jobs
+- `get_job_info_by_id`: Get job information by ID
+- `get_job_info_by_upload_id`: Get job information by upload ID
+
+### Folder Management
+- `get_all_folders`: Get all folders
+- `get_folder_info_by_id`: Get folder information by ID
+- `create_folder`: Create a new folder
+- `delete_folder`: Delete a folder
+- `change_folder_name_or_desc`: Change folder name or description
+- `apply_folder_action`: Apply an action (copy/move) to a folder
+
+### Upload Management
+- `get_all_uploads`: Get all uploads based on search criteria
+- `get_upload_summary`: Get summary for an uploaded package
+- `delete_upload`: Delete an upload
+
+### Package Upload
+- `upload_local_package`: Upload a local package file
+- `upload_url_package`: Upload a package from URL
+- `upload_git_package`: Upload a package from Git repository
+
+### Analysis
+- `trigger_analysis`: Trigger analysis for an uploaded package
+- `trigger_analysis_for_package`: Trigger analysis for a local package file
+- `trigger_analysis_for_url_package`: Trigger analysis for a package from URL
+- `trigger_analysis_for_git_package`: Trigger analysis for a package from Git repository
+
+### License Management
+- `get_licenses_found_by_agents`: Get licenses found by scanners
+- `get_license_by_shortname`: Get license details by short name
+- `get_all_licenses`: Get all licenses
+- `get_license_shortnames`: Get all license short names
+
+### Report Generation
+- `generate_report`: Generate and download a report for an upload
+
+### Search
+- `search_files`: Search files based on various criteria
+- `get_file_by_hash`: Get file information by hash (SHA1, MD5, or SHA256)
+- `get_copyrights_by_upload_id`: Get copyrights for an upload
+
+## Integrating with LLM Applications
+
+This MCP server can be integrated with LLM applications that support the Model Context Protocol. For example:
+
+```python
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+from anthropic import Anthropic
+
+async def run_with_llm():
+    # Connect to MCP server
+    server_params = StdioServerParameters(
+        command="python",
+        args=["server.py"],
+        env=None
+    )
+    
+    async with stdio_client(server_params) as (stdio, write):
+        async with ClientSession(stdio, write) as session:
+            await session.initialize()
+            
+            # Get available tools
+            response = await session.list_tools()
+            tools = response.tools
+            
+            # Set up Anthropic Claude client
+            client = Anthropic()
+            
+            # Make a query using Claude with tool access
+            response = client.messages.create(
+                model="claude-3-5-sonnet-20241022",
+                max_tokens=1000,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": "Upload the repository https://github.com/example/repo to Fossology folder ID 1, analyze it, and summarize the licenses found."
+                    }
+                ],
+                tools=[
+                    {
+                        "name": tool.name,
+                        "description": tool.description,
+                        "input_schema": tool.inputSchema
+                    } for tool in tools
+                ]
+            )
+            
+            # Process Claude's response and handle tool calls
+            # ...
+
+# Run with asyncio.run(run_with_llm())
+```
+
+## License
+
+Same as the original easy_fossy project.
+
+## Credits
+
+This project is based on [easy_fossy](https://github.com/dineshr93/easy_fossy) and uses the [Model Context Protocol](https://modelcontextprotocol.io/).

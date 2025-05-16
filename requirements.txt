@@ -1,8 +1,14 @@
-certifi==2021.10.8
-charset-normalizer==2.0.7
-idna==3.3
-pydantic==1.8.2
-requests==2.26.0
-requests-toolbelt==0.9.1
-typing-extensions==3.10.0.2
-urllib3==1.26.7
+certifi>=2023.5.7
+charset-normalizer>=2.1.0
+idna>=3.4
+pydantic>=2.7.2,<3.0.0
+requests>=2.31.0
+requests-toolbelt>=1.0.0
+typing-extensions>=4.7.0
+urllib3>=1.26.16,<2.0.0
+mcp>=1.8.1
+# Using local version of easy-fossy since we need to modify its models
+-e .
+fastapi>=0.105.0
+uvicorn>=0.24.0
+python-dotenv>=1.0.0

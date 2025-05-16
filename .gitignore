@@ -2,3 +2,4 @@ config.ini
 .ort/
 easy_fossy/__pycache__/
 .pypirc
+venv/
