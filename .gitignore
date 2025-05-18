@@ -1,5 +1,6 @@
 config.ini
 .ort/
-easy_fossy/__pycache__/
+easy_fossy/__pycache__
+__pycache__
 .pypirc
 venv/

@@ -1020,7 +1020,7 @@ class easy_fossy:
                 break
             if response.status_code == 201:
                 break
-
+        
         match response.json():
             case {**info}:
                 report_info = Info(**info)
