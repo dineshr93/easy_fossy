@@ -8,7 +8,7 @@ from datetime import date
 from enum import Enum
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, Field, SecretStr, constr
+from pydantic import BaseModel, Field, SecretStr, constr, field_validator
 
 
 class LicenseDecider(BaseModel):
@@ -104,7 +104,12 @@ class Info(BaseModel):
     type: Optional[Type] = Field(
         None, description="Denotes if info was created on error"
     )
-
+    @field_validator("message", mode="before")
+    @classmethod
+    def convert_message_to_str(cls, v):
+        if v is not None:
+            return str(v)
+        return v
 
 class Copyright(BaseModel):
     content: Optional[str] = Field(
