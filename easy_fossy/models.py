@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from datetime import date
 from enum import Enum
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Any
 
-from pydantic import BaseModel, Field, SecretStr, constr, field_validator
+from pydantic import BaseModel, Field, SecretStr, constr, RootModel,field_validator
 
 
 class LicenseDecider(BaseModel):
@@ -110,6 +110,7 @@ class Info(BaseModel):
         if v is not None:
             return str(v)
         return v
+
 
 class Copyright(BaseModel):
     content: Optional[str] = Field(
@@ -303,8 +304,13 @@ class Source(BaseModel):
     percentage: int
 
 
-class Licenses(BaseModel):
-    __root__: List[License]
+class LicensesRoot(RootModel):
+    """Root model for Licenses"""
+    root: List[License]
+
+
+class Licenses(LicensesRoot):
+    pass
 
 
 class Histogram(BaseModel):
@@ -319,22 +325,12 @@ class LicenseCount(BaseModel):
 
 
 class License(BaseModel):
-    shortName: Optional[str] = Field(None, description="Short name", example="MIT")
-    fullName: Optional[str] = Field(
-        None, description="Full name", example="MIT License"
-    )
-    text: Optional[str] = Field(
-        None,
-        description="License text",
-        example="MIT License Copyright (c) <year> <copyright holders> ...",
-    )
-    url: Optional[str] = Field(
-        None,
-        description="URL of the license text",
-        example="https://opensource.org/licenses/MIT",
-    )
-    risk: Optional[int] = Field(None, description="Risk level", example=3)
-    isCandidate: Optional[bool] = Field(None, description="Is the license a candidate?")
+    shortName: str = Field(..., description="Short name of the license", example="GPL-2.0")
+    fullName: str = Field(..., description="Full name of the license", example="GNU General Public License 2.0")
+    text: str = Field(..., description="Full text of the license")
+    url: Optional[str] = Field(None, description="URL to the license text")
+    risk: Optional[int] = Field(None, description="Risk level of the license")
+    isCandidate: Optional[bool] = Field(None, description="Is this a candidate license?")
     sources: List[Source]
     comment: str
     acknowledgement: str
@@ -452,8 +448,13 @@ class UploadType(Enum):
     server = "server"
 
 
-class UploadsPostRequest(BaseModel):
-    __root__: Union[VcsUpload, UrlUpload, ServerUpload]
+class UploadsPostRequestRoot(RootModel):
+    """Root model for UploadsPostRequest"""
+    root: Union[VcsUpload, UrlUpload, ServerUpload]
+
+
+class UploadsPostRequest(UploadsPostRequestRoot):
+    pass
 
 
 class UploadsPostRequest1(BaseModel):
@@ -641,8 +642,13 @@ class UploadLicense(BaseModel):
     findings: Optional[Findings] = None
 
 
-class UploadLicenses(BaseModel):
-    __root__: List[UploadLicense]
+class UploadLicenseRoot(RootModel):
+    """Root model for UploadLicense list"""
+    root: List[UploadLicense]
+
+
+class UploadLicenses(UploadLicenseRoot):
+    pass
 
 
 class File(BaseModel):
