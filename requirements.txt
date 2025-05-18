@@ -8,7 +8,7 @@ typing-extensions>=4.7.0
 urllib3>=1.26.16,<2.0.0
 mcp>=1.8.1
 # Using local version of easy-fossy since we need to modify its models
--e .
+easy_fossy==2.4.5
 fastapi>=0.105.0
 uvicorn>=0.24.0
 python-dotenv>=1.0.0
