@@ -1230,7 +1230,7 @@ class easy_fossy:
         headers = {
             "accept": "application/json",
             "folderId": str(folder_id),
-            "uploadId": upload_id,
+            "uploadId": str(upload_id),
             "groupName": self.group_name,
             "Content-Type": "application/json",
             "Authorization": self.bearer_token,
@@ -1770,7 +1770,7 @@ class easy_fossy:
             "accept": "application/json",
             "groupName": self.group_name,
             "searchType": searchType.name,
-            "uploadId": uploadId,
+            "uploadId": str(uploadId),
             "filename": filename_wildcard,
             "tag": tag,
             "filesizemin": filesizemin_bytes,
