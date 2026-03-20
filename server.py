@@ -31,8 +31,7 @@ from pydantic import BaseModel, Field
 # Create an MCP server with description
 mcp = FastMCP(
     "EasyFossy", 
-    description="Model Context Protocol server for Fossology license scanning and management"
-)
+    )
 
 # Initialize easy_fossy instance
 fossy = None
