@@ -31,7 +31,6 @@ from pydantic import BaseModel, Field
 # Create an MCP server with description
 mcp = FastMCP(
     "EasyFossy", 
-    description="Model Context Protocol server for Fossology license scanning and management, port localhost:8050",
     host="0.0.0.0",  # only used for SSE transport
     port=8050,  # only used for SSE transport (set this to any port)
 )
