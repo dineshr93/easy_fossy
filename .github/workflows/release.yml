@@ -122,10 +122,28 @@ jobs:
         echo "```" >> release_notes.md
         echo "" >> release_notes.md
         echo "Or install from the released wheel:" >> release_notes.md
+        echo "" >> release_notes.md
+        echo "1. Download the wheel file from the release assets" >> release_notes.md
+        echo "2. Open a terminal/command prompt" >> release_notes.md
+        echo "3. Navigate to the directory containing the downloaded wheel file" >> release_notes.md
+        echo "4. Run the following command:" >> release_notes.md
         echo "```" >> release_notes.md
         echo "pip install easy_fossy-${{ steps.version.outputs.VERSION_CLEAN }}.whl" >> release_notes.md
         echo "```" >> release_notes.md
         echo "" >> release_notes.md
+        echo "For example, if you downloaded the file to your Downloads folder on Windows:" >> release_notes.md
+        echo "```" >> release_notes.md
+        echo "cd ~/Downloads" >> release_notes.md
+        echo "pip install easy_fossy-${{ steps.version.outputs.VERSION_CLEAN }}.whl" >> release_notes.md
+        echo "```" >> release_notes.md
+        echo "" >> release_notes.md
+        echo "On macOS/Linux, if downloaded to the default download location:" >> release_notes.md
+        echo "```" >> release_notes.md
+        echo "cd ~/Downloads" >> release_notes.md
+        echo "pip install easy_fossy-${{ steps.version.outputs.VERSION_CLEAN }}.whl" >> release_notes.md
+        echo "```" >> release_notes.md
+        echo "" >> release_notes.md
+        echo "Note: The wheel file is cross-platform and works on Windows, macOS, and Linux." >> release_notes.md
 
         cat release_notes.md
     
