@@ -81,10 +81,24 @@ jobs:
           - Author: ${{ env.LATEST_COMMIT_AUTHOR }}
           - Date: ${{ env.LATEST_COMMIT_DATE }}
           
-          ## Platform-specific builds
-          - Windows: true
-          - Linux: true
-          - macOS: true
+          ## Installation Instructions
+          The release contains a cross-platform Python wheel that works on Windows, Linux, and macOS:
+          
+          ```
+          pip install easy-fossy
+          ```
+          
+          Or install from the released wheel:
+          
+          ```
+          pip install easy_fossy-*.whl
+          ```
+          
+          ## Release Assets
+          - easy_fossy-*.whl (cross-platform wheel - works on all OSes)
+          - easy_fossy-*.tar.gz (source distribution)
+          
+          Note: Since this package contains no C extensions, a single universal wheel is sufficient for all platforms.
         draft: false
         prerelease: false
       env:
