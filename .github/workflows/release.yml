@@ -136,6 +136,7 @@ jobs:
         asset_path: ${{ env.WHEEL_FILE }}
         asset_name: easy_fossy-${{ env.VERSION_CLEAN }}.whl
         asset_content_type: application/zip
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Upload source distribution
       uses: actions/upload-release-asset@v1
@@ -144,3 +145,4 @@ jobs:
         asset_path: ${{ env.SOURCE_FILE }}
         asset_name: easy_fossy-${{ env.VERSION_CLEAN }}.tar.gz
         asset_content_type: application/gzip
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
