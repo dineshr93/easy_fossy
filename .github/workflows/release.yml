@@ -1,0 +1,81 @@
+name: Publish Python Package
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-and-release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+        cache-dependency-path: '**/pyproject.toml'
+    
+    - name: Install Poetry
+      run: |
+        pip install poetry
+    
+    - name: Install dependencies with Poetry
+      run: |
+        poetry install --no-dev
+    
+    - name: Build package with Poetry
+      run: |
+        poetry build
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-${{ matrix.os }}
+        path: dist/
+    
+    - name: Get commit details
+      id: commit-details
+      run: |
+        echo "COMMIT_COUNT=$(git rev-list --count HEAD)" >> $GITHUB_ENV
+        echo "LATEST_COMMIT=$(git rev-parse HEAD)" >> $GITHUB_ENV
+        echo "LATEST_COMMIT_MSG=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+        echo "LATEST_COMMIT_AUTHOR=$(git log -1 --pretty=%an)" >> $GITHUB_ENV
+        echo "LATEST_COMMIT_DATE=$(git log -1 --pretty=%ad)" >> $GITHUB_ENV
+    
+    - name: Print commit details
+      run: |
+        echo "Commit count: ${{ env.COMMIT_COUNT }}"
+        echo "Latest commit: ${{ env.LATEST_COMMIT }}"
+        echo "Commit message: ${{ env.LATEST_COMMIT_MSG }}"
+        echo "Author: ${{ env.LATEST_COMMIT_AUTHOR }}"
+        echo "Date: ${{ env.LATEST_COMMIT_DATE }}"
+    
+    - name: Create release
+      uses: actions/create-release@v1
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          ## Release Details
+          - Commit count: ${{ env.COMMIT_COUNT }}
+          - Latest commit: ${{ env.LATEST_COMMIT }}
+          - Commit message: ${{ env.LATEST_COMMIT_MSG }}
+          - Author: ${{ env.LATEST_COMMIT_AUTHOR }}
+          - Date: ${{ env.LATEST_COMMIT_DATE }}
+          
+          ## Platform-specific builds
+          - Windows: ${{ contains(matrix.os, 'windows') }}
+          - Linux: ${{ contains(matrix.os, 'ubuntu') }}
+          - macOS: ${{ contains(matrix.os, 'macos') }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

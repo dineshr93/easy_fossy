@@ -8,11 +8,47 @@ Accessing fossy api is made easier (requires python 3.10)
 
 [Test Index Registry](https://test.pypi.org/project/easy-fossy/)
 
+## Installation
+
+### From PyPI (Recommended)
+
 ```
 pip install easy-fossy
 ```
 
-Requires
+### From GitHub Releases
+
+1. Go to the [Releases](https://github.com/dineshr93/easy_fossy/releases) page
+2. Download the appropriate wheel file (`.whl`) for your platform
+3. Install using pip:
+
+```
+pip install path/to/downloaded/file.whl
+```
+
+### Manual Installation from Source
+
+1. Clone the repository:
+
+```
+git clone https://github.com/dineshr93/easy_fossy.git
+cd easy_fossy
+```
+
+2. Install using Poetry (recommended):
+
+```
+pip install poetry
+poetry install
+```
+
+3. Or install using pip:
+
+```
+pip install .
+```
+
+## Requirements
 
 ```
 #### 1. python 3.9
