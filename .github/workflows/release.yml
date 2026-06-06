@@ -3,14 +3,20 @@ name: Publish Python Package
 on:
   push:
     tags:
-      - '*'
+      - "v*"
+
+permissions:
+  contents: write
+  packages: write
 
 jobs:
-  build-and-upload:
+  release:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     
     - name: Set up Python 3.10
       uses: actions/setup-python@v5
@@ -31,89 +37,97 @@ jobs:
       run: |
         poetry build
     
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: dist
-        path: dist/
-    
-  create-release:
-    needs: build-and-upload
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: dist
-        path: dist/
-    
-    - name: Get commit details
-      id: commit-details
-      run: |
-        echo "COMMIT_COUNT=$(git rev-list --count HEAD)" >> $GITHUB_ENV
-        echo "LATEST_COMMIT=$(git rev-parse HEAD)" >> $GITHUB_ENV
-        echo "LATEST_COMMIT_MSG=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
-        echo "LATEST_COMMIT_AUTHOR=$(git log -1 --pretty=%an)" >> $GITHUB_ENV
-        echo "LATEST_COMMIT_DATE=$(git log -1 --pretty=%ad)" >> $GITHUB_ENV
-    
-    - name: Print commit details
-      run: |
-        echo "Commit count: ${{ env.COMMIT_COUNT }}"
-        echo "Latest commit: ${{ env.LATEST_COMMIT }}"
-        echo "Commit message: ${{ env.LATEST_COMMIT_MSG }}"
-        echo "Author: ${{ env.LATEST_COMMIT_AUTHOR }}"
-        echo "Date: ${{ env.LATEST_COMMIT_DATE }}"
-    
-    - name: Get version
+    - name: Get tag version
       id: version
       run: |
-        VERSION=$(echo ${{ github.ref }} | sed 's/refs\/tags\///')
-        VERSION_CLEAN=$(echo $VERSION | sed 's/^v//')
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
-        echo "VERSION_CLEAN=$VERSION_CLEAN" >> $GITHUB_ENV
-        echo "Version: $VERSION"
-        echo "Version (clean): $VERSION_CLEAN"
+        VERSION=${GITHUB_REF#refs/tags/}
+        VERSION_CLEAN=${VERSION#v}
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "VERSION_CLEAN=$VERSION_CLEAN" >> $GITHUB_OUTPUT
+        echo "Tag version: $VERSION"
+        echo "Clean version: $VERSION_CLEAN"
     
-    - name: Create release
-      uses: actions/create-release@v1
-      id: create-release
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ env.VERSION }}
-        body: |
-          ## Release Details
-          - Commit count: ${{ env.COMMIT_COUNT }}
-          - Latest commit: ${{ env.LATEST_COMMIT }}
-          - Commit message: ${{ env.LATEST_COMMIT_MSG }}
-          - Author: ${{ env.LATEST_COMMIT_AUTHOR }}
-          - Date: ${{ env.LATEST_COMMIT_DATE }}
-          
-          ## Installation Instructions
-          The release contains a cross-platform Python wheel that works on Windows, Linux, and macOS:
-          
-          ```
-          pip install easy-fossy
-          ```
-          
-          Or install from the released wheel:
-          
-          ```
-          pip install easy_fossy-*.whl
-          ```
-          
-          ## Release Assets
-          - easy_fossy-${{ env.VERSION_CLEAN }}.whl (cross-platform wheel - works on all OSes)
-          - easy_fossy-${{ env.VERSION_CLEAN }}.tar.gz (source distribution)
-          
-          Note: Since this package contains no C extensions, a single universal wheel is sufficient for all platforms.
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Get previous tag
+      id: prevtag
+      run: |
+        PREV_TAG=$(git describe --tags --abbrev=0 $(git describe --tags --abbrev=0 2>/dev/null)^ 2>/dev/null || echo "")
+        echo "PREV_TAG=$PREV_TAG" >> $GITHUB_OUTPUT
+        echo "Previous tag: $PREV_TAG"
+    
+    - name: Generate release notes
+      id: releasenotes
+      run: |
+        VERSION=${{ steps.version.outputs.VERSION }}
+        VERSION_CLEAN=${{ steps.version.outputs.VERSION_CLEAN }}
+        PREV_TAG=${{ steps.prevtag.outputs.PREV_TAG }}
+
+        echo "# Release $VERSION" > release_notes.md
+        echo "" >> release_notes.md
+        echo "**Release Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> release_notes.md
+        echo "" >> release_notes.md
+
+        if [ -n "$PREV_TAG" ]; then
+          echo "## 📊 Changes since $PREV_TAG" >> release_notes.md
+          echo "" >> release_notes.md
+
+          echo "### 🔢 Commit Count" >> release_notes.md
+          COMMIT_COUNT=$(git rev-list --count $PREV_TAG..HEAD)
+          echo "$COMMIT_COUNT commit(s)" >> release_notes.md
+          echo "" >> release_notes.md
+
+          echo "### 📝 Commit Details" >> release_notes.md
+          echo "" >> release_notes.md
+          git log $PREV_TAG..HEAD --pretty=format:"- %s (%h) by @%an" >> release_notes.md
+          echo "" >> release_notes.md
+
+          echo "### 📦 Files Changed" >> release_notes.md
+          echo "" >> release_notes.md
+          git diff --name-only $PREV_TAG..HEAD | while read file; do
+            ADDITIONS=$(git diff $PREV_TAG..HEAD -- "$file" | grep -c "^+" || echo "0")
+            DELETIONS=$(git diff $PREV_TAG..HEAD -- "$file" | grep -c "^-" || echo "0")
+            echo "- **$file**: +$ADDITIONS -$DELETIONS" >> release_notes.md
+          done
+          echo "" >> release_notes.md
+        else
+          echo "## 🎉 Initial Release" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "This is the first release of easy_fossy." >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### 🔢 Total Commits" >> release_notes.md
+          echo "$(git rev-list --count HEAD) commit(s)" >> release_notes.md
+          echo "" >> release_notes.md
+        fi
+
+        echo "## 🛠 Build Artifacts" >> release_notes.md
+        echo "" >> release_notes.md
+        echo "The following Python packages are available for download:" >> release_notes.md
+        echo "" >> release_notes.md
+        echo "| Platform | File Name |" >> release_notes.md
+        echo "|----------|-----------|" >> release_notes.md
+        echo "| Cross-platform | easy_fossy-${{ steps.version.outputs.VERSION_CLEAN }}.whl |" >> release_notes.md
+        echo "| Cross-platform | easy_fossy-${{ steps.version.outputs.VERSION_CLEAN }}.tar.gz |" >> release_notes.md
+        echo "" >> release_notes.md
+
+        echo "## 📋 Prerequisites" >> release_notes.md
+        echo "" >> release_notes.md
+        echo "- Python 3.9+" >> release_notes.md
+        echo "- pip" >> release_notes.md
+        echo "" >> release_notes.md
+
+        echo "## 🚀 Usage" >> release_notes.md
+        echo "" >> release_notes.md
+        echo "Install from PyPI:" >> release_notes.md
+        echo "```" >> release_notes.md
+        echo "pip install easy-fossy" >> release_notes.md
+        echo "```" >> release_notes.md
+        echo "" >> release_notes.md
+        echo "Or install from the released wheel:" >> release_notes.md
+        echo "```" >> release_notes.md
+        echo "pip install easy_fossy-${{ steps.version.outputs.VERSION_CLEAN }}.whl" >> release_notes.md
+        echo "```" >> release_notes.md
+        echo "" >> release_notes.md
+
+        cat release_notes.md
     
     - name: Find wheel file
       id: find-wheel
@@ -129,20 +143,14 @@ jobs:
         echo "SOURCE_FILE=$SOURCE_FILE" >> $GITHUB_ENV
         echo "Found source: $SOURCE_FILE"
     
-    - name: Upload wheel asset
-      uses: actions/upload-release-asset@v1
+    - name: Create and publish release
+      uses: softprops/action-gh-release@v2
       with:
-        upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ${{ env.WHEEL_FILE }}
-        asset_name: easy_fossy-${{ env.VERSION_CLEAN }}.whl
-        asset_content_type: application/zip
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Upload source distribution
-      uses: actions/upload-release-asset@v1
-      with:
-        upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ${{ env.SOURCE_FILE }}
-        asset_name: easy_fossy-${{ env.VERSION_CLEAN }}.tar.gz
-        asset_content_type: application/gzip
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        name: Release ${{ steps.version.outputs.VERSION }}
+        body_path: release_notes.md
+        tag_name: ${{ steps.version.outputs.VERSION }}
+        files: |
+          ./dist/easy_fossy-*.whl
+          ./dist/easy_fossy-*.tar.gz
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
