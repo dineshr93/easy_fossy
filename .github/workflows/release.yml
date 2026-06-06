@@ -72,8 +72,11 @@ jobs:
       id: version
       run: |
         VERSION=$(echo ${{ github.ref }} | sed 's/refs\/tags\///')
+        VERSION_CLEAN=$(echo $VERSION | sed 's/^v//')
         echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "VERSION_CLEAN=$VERSION_CLEAN" >> $GITHUB_ENV
         echo "Version: $VERSION"
+        echo "Version (clean): $VERSION_CLEAN"
     
     - name: Create release
       uses: actions/create-release@v1
@@ -103,8 +106,8 @@ jobs:
           ```
           
           ## Release Assets
-          - easy_fossy-${{ env.VERSION }}.whl (cross-platform wheel - works on all OSes)
-          - easy_fossy-${{ env.VERSION }}.tar.gz (source distribution)
+          - easy_fossy-${{ env.VERSION_CLEAN }}.whl (cross-platform wheel - works on all OSes)
+          - easy_fossy-${{ env.VERSION_CLEAN }}.tar.gz (source distribution)
           
           Note: Since this package contains no C extensions, a single universal wheel is sufficient for all platforms.
         draft: false
@@ -116,14 +119,14 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ./dist/easy_fossy-${{ env.VERSION }}.whl
-        asset_name: easy_fossy-${{ env.VERSION }}.whl
+        asset_path: ./dist/easy_fossy-*.whl
+        asset_name: easy_fossy-${{ env.VERSION_CLEAN }}.whl
         asset_content_type: application/zip
     
     - name: Upload source distribution
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ./dist/easy_fossy-${{ env.VERSION }}.tar.gz
-        asset_name: easy_fossy-${{ env.VERSION }}.tar.gz
+        asset_path: ./dist/easy_fossy-*.tar.gz
+        asset_name: easy_fossy-${{ env.VERSION_CLEAN }}.tar.gz
         asset_content_type: application/gzip
