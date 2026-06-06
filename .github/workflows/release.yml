@@ -103,3 +103,19 @@ jobs:
         prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Upload release assets
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./dist/easy_fossy-*.whl
+        asset_name: easy_fossy-$(echo $(git describe --tags --abbrev=0) | tr -d 'v').whl
+        asset_content_type: application/zip
+    
+    - name: Upload source distribution
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./dist/easy_fossy-*.tar.gz
+        asset_name: easy_fossy-$(echo $(git describe --tags --abbrev=0) | tr -d 'v').tar.gz
+        asset_content_type: application/gzip
