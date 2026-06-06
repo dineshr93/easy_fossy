@@ -115,11 +115,25 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
+    - name: Find wheel file
+      id: find-wheel
+      run: |
+        WHEEL_FILE=$(ls ./dist/easy_fossy-*.whl | head -n 1)
+        echo "WHEEL_FILE=$WHEEL_FILE" >> $GITHUB_ENV
+        echo "Found wheel: $WHEEL_FILE"
+    
+    - name: Find source file
+      id: find-source
+      run: |
+        SOURCE_FILE=$(ls ./dist/easy_fossy-*.tar.gz | head -n 1)
+        echo "SOURCE_FILE=$SOURCE_FILE" >> $GITHUB_ENV
+        echo "Found source: $SOURCE_FILE"
+    
     - name: Upload wheel asset
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ./dist/easy_fossy-*.whl
+        asset_path: ${{ env.WHEEL_FILE }}
         asset_name: easy_fossy-${{ env.VERSION_CLEAN }}.whl
         asset_content_type: application/zip
     
@@ -127,6 +141,6 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ./dist/easy_fossy-*.tar.gz
+        asset_path: ${{ env.SOURCE_FILE }}
         asset_name: easy_fossy-${{ env.VERSION_CLEAN }}.tar.gz
         asset_content_type: application/gzip
