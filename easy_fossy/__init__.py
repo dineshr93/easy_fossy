@@ -1502,6 +1502,547 @@ class easy_fossy:
         headers = {
             "accept": "application/json",
             "groupName": self.group_name,
+
+    def get_api_info(self) -> ApiInfo:
+        """Get the current API information"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("info"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                api_info = ApiInfo(**info)
+                return api_info
+            case _:
+                print(response.text)
+
+    def get_openapi_doc(self) -> str:
+        """Get the current OpenAPI documentation"""
+        payload = ""
+        headers = {
+            "accept": "application/vnd.oai.openapi",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("openapi"), data=payload, headers=headers, verify=self.verify
+        )
+
+        if response.status_code == 200:
+            return response.text
+        else:
+            print(response.text)
+            return None
+
+    def get_health_status(self) -> HeathInfo:
+        """Get the status of API service"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("health"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                health_info = HeathInfo(**info)
+                return health_info
+            case _:
+                print(response.text)
+
+    def initiate_maintenance(self, maintenance_options: dict) -> Info:
+        """Initiate maintenance operations"""
+        payload = maintenance_options
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "POST", self.url + str("maintenance"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def get_obligations_list(self) -> List[dict]:
+        """Get the list of obligations"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("obligations/list"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_obligation_details(self, obligation_id: int) -> dict:
+        """Get details of a particular obligation"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"obligations/{obligation_id}"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                return info
+            case _:
+                print(response.text)
+
+    def delete_obligation(self, obligation_id: int) -> Info:
+        """Delete a particular obligation"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "DELETE", self.url + str(f"obligations/{obligation_id}"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def import_obligation_csv(self, csv_file_path: str, delimiter: str = ",", enclosure: str = '"') -> Info:
+        """Import an obligation csv file"""
+        if not Path(csv_file_path).exists():
+            print(f"CSV file {csv_file_path} doesn't exist")
+            return None
+
+        m = MultipartEncoder(
+            [
+                ("file_input", (Path(csv_file_path).name, open(csv_file_path, "rb"), "text/csv")),
+                ("delimiter", delimiter),
+                ("enclosure", enclosure),
+            ],
+            encoding="utf-8",
+        )
+        headers = {
+            "Authorization": self.bearer_token,
+            "Content-Type": m.content_type,
+        }
+
+        response = requests.request(
+            "POST", self.url + str("obligations/import-csv"), data=m, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def export_obligation_csv(self, obligation_id: int = 0) -> str:
+        """Export a csv obligation list"""
+        payload = ""
+        headers = {
+            "accept": "text/plain",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"id": obligation_id}
+
+        response = requests.request(
+            "GET", self.url + str("obligations/export-csv"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        if response.status_code == 200:
+            return response.text
+        else:
+            print(response.text)
+            return None
+
+    def import_obligation_json(self, json_file_path: str) -> Info:
+        """Import an obligation json file"""
+        if not Path(json_file_path).exists():
+            print(f"JSON file {json_file_path} doesn't exist")
+            return None
+
+        m = MultipartEncoder(
+            [
+                ("fileInput", (Path(json_file_path).name, open(json_file_path, "rb"), "application/json")),
+            ],
+            encoding="utf-8",
+        )
+        headers = {
+            "Authorization": self.bearer_token,
+            "Content-Type": m.content_type,
+        }
+
+        response = requests.request(
+            "POST", self.url + str("obligations/import-json"), data=m, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def export_obligation_json(self, obligation_id: int = 0) -> str:
+        """Export a json obligation list"""
+        payload = ""
+        headers = {
+            "accept": "text/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"id": obligation_id}
+
+        response = requests.request(
+            "GET", self.url + str("obligations/export-json"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        if response.status_code == 200:
+            return response.text
+        else:
+            print(response.text)
+            return None
+
+    def get_all_obligations(self) -> List[dict]:
+        """Get details of all obligations"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("obligations"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def download_upload_file(self, upload_id: int) -> bytes:
+        """Download the file from upload"""
+        payload = ""
+        headers = {
+            "accept": "text/plain",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/download"), data=payload, headers=headers, verify=self.verify
+        )
+
+        if response.status_code == 200:
+            return response.content
+        else:
+            print(response.text)
+            return None
+
+    def get_file_info(self, upload_id: int, item_id: int) -> dict:
+        """Get single file info"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/info"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                return info
+            case _:
+                print(response.text)
+
+    def view_file_content(self, upload_id: int, item_id: int) -> str:
+        """Get the contents of the file"""
+        payload = ""
+        headers = {
+            "accept": "text/plain",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/view"), data=payload, headers=headers, verify=self.verify
+        )
+
+        if response.status_code == 200:
+            return response.text
+        else:
+            print(response.text)
+            return None
+
+    def get_highlight_entries(self, upload_id: int, item_id: int, clearing_id: int = None, license_id: int = None, highlight_id: int = None, agent_id: int = None) -> List[dict]:
+        """Get highlight entries of the content"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {}
+        if clearing_id:
+            querystring["clearingId"] = clearing_id
+        if license_id:
+            querystring["licenseId"] = license_id
+        if highlight_id:
+            querystring["highlightId"] = highlight_id
+        if agent_id:
+            querystring["agentId"] = agent_id
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/highlight"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def set_clearing_decision(self, upload_id: int, item_id: int, decision_data: dict) -> Info:
+        """Set the clearing decision for a particular upload tree item"""
+        payload = decision_data
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "PUT", self.url + str(f"uploads/{upload_id}/item/{item_id}/clearing-decision"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def schedule_bulk_scan(self, upload_id: int, item_id: int, bulk_scan_data: dict) -> Info:
+        """Schedule the bulk scan for the item"""
+        payload = bulk_scan_data
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "POST", self.url + str(f"uploads/{upload_id}/item/{item_id}/bulk-scan"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def get_bulk_history(self, upload_id: int, item_id: int) -> List[dict]:
+        """Get the bulk history for a specific upload item"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/bulk-history"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_license_decisions(self, upload_id: int, item_id: int) -> List[dict]:
+        """Get the license decisions list"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/licenses"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def add_edit_delete_license_decision(self, upload_id: int, item_id: int, license_actions: List[dict]) -> dict:
+        """Add, update or delete a license decision"""
+        payload = license_actions
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "PUT", self.url + str(f"uploads/{upload_id}/item/{item_id}/add-edit-delete-license-decision"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {"success": success, "errors": errors}:
+                return {"success": success, "errors": errors}
+            case _:
+                print(response.text)
+
+    def get_main_licenses(self, upload_id: int) -> List[dict]:
+        """Get main licenses on the upload"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/licenses/main"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def set_main_license(self, upload_id: int, license_data: dict) -> Info:
+        """Set the main license for the upload"""
+        payload = license_data
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "POST", self.url + str(f"uploads/{upload_id}/licenses/main"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def delete_main_license(self, upload_id: int, short_name: str) -> Info:
+        """Delete a main license from an upload"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "DELETE", self.url + str(f"uploads/{upload_id}/licenses/{short_name}/main"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def get_prev_next_item(self, upload_id: int, item_id: int) -> dict:
+        """Get previous/next item"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/prev-next"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                return info
+            case _:
+                print(response.text)
+
+    def set_upload_permissions(self, upload_id: int, permissions_data: dict) -> List[Info]:
+        """Set permissions for a upload in a folder for different groups"""
+        payload = permissions_data
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "PUT", self.url + str(f"uploads/{upload_id}/permissions"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                info_objs = [Info(**info) for info in args]
+                return info_objs
+            case _:
+                print(response.text)
+
+    def get_group_permissions(self, upload_id: int) -> dict:
+        """Get all the groups with their respective permissions for a upload"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/perm-groups"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                return info
+            case _:
+                print(response.text)
+
+    def delete_uploads_by_upload_id(self, upload_id: int) -> Info:
+        """Delete the upload by given upload id"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "groupName": self.group_name,
             "Authorization": self.bearer_token,
         }
 
