@@ -33,9 +33,16 @@ jobs:
       run: |
         poetry install --only main
     
+    - name: Clean dist directory
+      run: |
+        rm -rf ./dist
+        mkdir -p ./dist
+        echo "Cleaned dist directory"
+    
     - name: Build package with Poetry
       run: |
         poetry build
+        ls -la ./dist/
     
     - name: Get tag version
       id: version
