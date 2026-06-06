@@ -75,54 +75,55 @@ jobs:
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Version: $VERSION"
     
-    - name: Create release and upload assets
-      uses: actions/github-script@v7
+    - name: Create release
+      uses: actions/create-release@v1
+      id: create-release
       with:
-        script: |
-          const fs = require('fs');
-          const path = require('path');
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ env.VERSION }}
+        body: |
+          ## Release Details
+          - Commit count: ${{ env.COMMIT_COUNT }}
+          - Latest commit: ${{ env.LATEST_COMMIT }}
+          - Commit message: ${{ env.LATEST_COMMIT_MSG }}
+          - Author: ${{ env.LATEST_COMMIT_AUTHOR }}
+          - Date: ${{ env.LATEST_COMMIT_DATE }}
           
-          const version = process.env.VERSION;
-          const tag = process.env.GITHUB_REF;
+          ## Installation Instructions
+          The release contains a cross-platform Python wheel that works on Windows, Linux, and macOS:
           
-          // Read release body
-          const body = `## Release Details\n- Commit count: ${{ env.COMMIT_COUNT }}\n- Latest commit: ${{ env.LATEST_COMMIT }}\n- Commit message: ${{ env.LATEST_COMMIT_MSG }}\n- Author: ${{ env.LATEST_COMMIT_AUTHOR }}\n- Date: ${{ env.LATEST_COMMIT_DATE }}\n\n## Installation Instructions\nThe release contains a cross-platform Python wheel that works on Windows, Linux, and macOS:\n\n\`\`\`\npip install easy-fossy\n\`\`\`\n\nOr install from the released wheel:\n\n\`\`\`\npip install easy_fossy-*.whl\n\`\`\`\n\n## Release Assets\n- easy_fossy-${{ env.VERSION }}.whl (cross-platform wheel - works on all OSes)\n- easy_fossy-${{ env.VERSION }}.tar.gz (source distribution)\n\nNote: Since this package contains no C extensions, a single universal wheel is sufficient for all platforms.`;
+          ```
+          pip install easy-fossy
+          ```
           
-          // Create release
-          const release = await github.rest.repos.createRelease({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            tag_name: tag,
-            target_commitish: context.sha,
-            name: `Release ${version}`,
-            body: body,
-            draft: false,
-            prerelease: false
-          });
+          Or install from the released wheel:
           
-          // Get asset files
-          const distDir = './dist';
-          const files = fs.readdirSync(distDir);
+          ```
+          pip install easy_fossy-*.whl
+          ```
           
-          // Upload each file
-          for (const file of files) {
-            if (file.endsWith('.whl') || file.endsWith('.tar.gz')) {
-              const filePath = path.join(distDir, file);
-              const fileContent = fs.readFileSync(filePath);
-              
-              // Upload asset
-              await github.rest.repos.uploadReleaseAsset({
-                url: release.data.upload_url,
-                headers: {
-                  'content-type': file.endsWith('.whl') ? 'application/zip' : 'application/gzip',
-                  'content-length': fileContent.length
-                },
-                name: file,
-                file: fileContent
-              });
-            }
-          }
-        
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ steps.version.outputs.VERSION }}
+          ## Release Assets
+          - easy_fossy-${{ env.VERSION }}.whl (cross-platform wheel - works on all OSes)
+          - easy_fossy-${{ env.VERSION }}.tar.gz (source distribution)
+          
+          Note: Since this package contains no C extensions, a single universal wheel is sufficient for all platforms.
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Upload wheel asset
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create-release.outputs.upload_url }}
+        asset_path: ./dist/easy_fossy-${{ env.VERSION }}.whl
+        asset_name: easy_fossy-${{ env.VERSION }}.whl
+        asset_content_type: application/zip
+    
+    - name: Upload source distribution
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create-release.outputs.upload_url }}
+        asset_path: ./dist/easy_fossy-${{ env.VERSION }}.tar.gz
+        asset_name: easy_fossy-${{ env.VERSION }}.tar.gz
+        asset_content_type: application/gzip
