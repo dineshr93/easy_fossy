@@ -1502,6 +1502,19 @@ class easy_fossy:
         headers = {
             "accept": "application/json",
             "groupName": self.group_name,
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "DELETE", self.url + str(f"uploads/{upload_id}"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
 
     def get_api_info(self) -> ApiInfo:
         """Get the current API information"""
@@ -2376,3 +2389,1718 @@ class easy_fossy:
                 return files
             case _:
                 print(response.text)
+
+    # =========================================================================
+    # MISSING METHODS — Implemented from OpenAPI spec
+    # =========================================================================
+
+    def get_upload_by_id(self, upload_id: int) -> Upload:
+        """Get single upload by id"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "groupName": self.group_name,
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**upload_info}:
+                upload = Upload(**upload_info)
+                return upload
+            case _:
+                print(response.text)
+
+    def update_upload_by_id(self, upload_id: int, new_status: str = None, new_assignee: int = None, comment: str = "") -> Info:
+        """Update an upload's status and/or assignee"""
+        payload = comment
+        headers = {
+            "accept": "application/json",
+            "groupName": self.group_name,
+            "Authorization": self.bearer_token,
+        }
+        querystring = {}
+        if new_status:
+            querystring["status"] = new_status
+        if new_assignee:
+            querystring["assignee"] = new_assignee
+
+        response = requests.request(
+            "PATCH", self.url + str(f"uploads/{upload_id}"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def move_upload_by_id(self, upload_id: int, folder_id: int, action: str = "copy") -> Info:
+        """Copy or move an upload by id"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "folderId": str(folder_id),
+            "action": action,
+            "groupName": self.group_name,
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "PUT", self.url + str(f"uploads/{upload_id}"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def get_clearing_history(self, upload_id: int, item_id: int) -> List[dict]:
+        """Get the clearing history for a specific upload item"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/clearing-history"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_clearing_progress_info(self, upload_id: int) -> dict:
+        """Get the clearing progress information for an upload"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/clearing-progress"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                return info
+            case _:
+                print(response.text)
+
+    def get_agents_by_upload_id(self, upload_id: int) -> List[dict]:
+        """Get agents for an upload"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/agents"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_all_edited_licenses(self, upload_id: int) -> List[dict]:
+        """Get the edited licenses list for a specific upload"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/licenses/edited"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_all_scanned_licenses(self, upload_id: int, agent_id: int = None) -> List[dict]:
+        """Get the scanned licenses list for a specific upload"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {}
+        if agent_id:
+            querystring["agentId"] = agent_id
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/licenses/scanned"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_item_tree_view(self, upload_id: int, item_id: int, agent_id: int = None, flatten: bool = False, sort: str = None, search: str = None) -> List[dict]:
+        """Get the tree view for the given upload and item id"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {}
+        if agent_id:
+            querystring["agentId"] = agent_id
+        if flatten:
+            querystring["flatten"] = "true"
+        if sort:
+            querystring["sort"] = sort
+        if search:
+            querystring["search"] = search
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/tree/view"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_licenses_reuse_summary(self, upload_id: int) -> dict:
+        """Get the overall licenses reuse summary for an upload"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/licenses/reuse"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                return info
+            case _:
+                print(response.text)
+
+    def get_revisions_for_agents(self, upload_id: int) -> List[dict]:
+        """Get revisions for successful agents for the upload"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/agents/revision"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def run_one_shot_nomos(self, file_path: str) -> dict:
+        """Run one-shot nomos analysis on the upload without storing the results"""
+        if not Path(file_path).exists():
+            print(f"File {file_path} does not exist")
+            return None
+
+        file_name = file_path.split("/").pop()
+        m = MultipartEncoder(
+            [
+                ("fileInput", (file_name, open(file_path, "rb"), "application/octet-stream")),
+            ],
+            encoding="utf-8",
+        )
+        headers = {
+            "Content-Type": m.content_type,
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "POST", self.url + str("uploads/oneshot/nomos"), data=m, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                return info
+            case _:
+                print(response.text)
+
+    def run_one_shot_monk(self, file_path: str) -> dict:
+        """Run one-shot monk analysis on the upload without storing the results"""
+        if not Path(file_path).exists():
+            print(f"File {file_path} does not exist")
+            return None
+
+        file_name = file_path.split("/").pop()
+        m = MultipartEncoder(
+            [
+                ("fileInput", (file_name, open(file_path, "rb"), "application/octet-stream")),
+            ],
+            encoding="utf-8",
+        )
+        headers = {
+            "Content-Type": m.content_type,
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "POST", self.url + str("uploads/oneshot/monk"), data=m, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                return info
+            case _:
+                print(response.text)
+
+    def run_one_shot_ceu(self, file_path: str) -> dict:
+        """Run one-shot Copyright/Email/URL analysis on the upload without storing the results"""
+        if not Path(file_path).exists():
+            print(f"File {file_path} does not exist")
+            return None
+
+        file_name = file_path.split("/").pop()
+        m = MultipartEncoder(
+            [
+                ("fileInput", (file_name, open(file_path, "rb"), "application/octet-stream")),
+            ],
+            encoding="utf-8",
+        )
+        headers = {
+            "Content-Type": m.content_type,
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "POST", self.url + str("uploads/oneshot/ceu"), data=m, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                return info
+            case _:
+                print(response.text)
+
+    # --- COPYRIGHTS / CX endpoints ---
+
+    def get_file_copyrights(self, upload_id: int, item_id: int, status: str = "active") -> List[dict]:
+        """Get the copyrights of the mentioned upload tree ID"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"status": status}
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/copyrights"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def delete_file_copyright(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        """Deletes a copyright for a file"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "DELETE", self.url + str(f"uploads/{upload_id}/item/{item_id}/copyrights/{hash_val}"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def restore_file_copyright(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        """Restores a copyright for a file"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "PATCH", self.url + str(f"uploads/{upload_id}/item/{item_id}/copyrights/{hash_val}"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def update_file_copyright(self, upload_id: int, item_id: int, hash_val: str, new_content: dict) -> Info:
+        """Updates a copyright for a file"""
+        payload = new_content
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "PUT", self.url + str(f"uploads/{upload_id}/item/{item_id}/copyrights/{hash_val}"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def get_file_user_copyrights(self, upload_id: int, item_id: int, status: str = "active") -> List[dict]:
+        """Get the user copyright findings of the mentioned upload tree ID"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"status": status}
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/user-copyrights"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_file_scancode_copyrights(self, upload_id: int, item_id: int, status: str = "active") -> List[dict]:
+        """Get the scancode copyright findings"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"status": status}
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/scancode-copyrights"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_file_emails(self, upload_id: int, item_id: int, status: str = "active") -> List[dict]:
+        """Get the emails of the mentioned upload tree ID"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"status": status}
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/emails"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_file_scancode_emails(self, upload_id: int, item_id: int, status: str = "active") -> List[dict]:
+        """Get the scancode email findings"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"status": status}
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/scancode-emails"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_file_urls(self, upload_id: int, item_id: int, status: str = "active") -> List[dict]:
+        """Get the URLs of the mentioned upload tree ID"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"status": status}
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/urls"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_file_scancode_urls(self, upload_id: int, item_id: int, status: str = "active") -> List[dict]:
+        """Get the scancode url findings"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"status": status}
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/scancode-urls"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_file_authors(self, upload_id: int, item_id: int, status: str = "active") -> List[dict]:
+        """Get the authors of the mentioned upload tree ID"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"status": status}
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/authors"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_file_scancode_authors(self, upload_id: int, item_id: int, status: str = "active") -> List[dict]:
+        """Get the scancode author findings"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"status": status}
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/scancode-authors"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_file_eccs(self, upload_id: int, item_id: int, status: str = "active") -> List[dict]:
+        """Get the ECCs of the mentioned upload tree ID"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"status": status}
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/eccs"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_file_keywords(self, upload_id: int, item_id: int, status: str = "active") -> List[dict]:
+        """Get the keywords of the mentioned upload tree ID"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"status": status}
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/keywords"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_file_ipras(self, upload_id: int, item_id: int, status: str = "active") -> List[dict]:
+        """Get the IPRAs of the mentioned upload tree ID"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"status": status}
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/ipras"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_total_file_copyrights(self, upload_id: int, item_id: int, status: str = "active") -> dict:
+        """Get the total copyrights of the mentioned upload tree ID"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"status": status}
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/totalcopyrights"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_total_file_user_copyrights(self, upload_id: int, item_id: int, status: str = "active") -> dict:
+        """Get the total user copyright findings"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"status": status}
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/item/{item_id}/totalusercopyrights"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    # --- USERS ---
+
+    def get_self(self) -> User:
+        """Get the information about logged in user"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("users/self"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**user_info}:
+                user = User(**user_info)
+                return user
+            case _:
+                print(response.text)
+
+    def create_user(self, user_data: dict) -> Info:
+        """Create a new user"""
+        payload = user_data
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "POST", self.url + str("users"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def modify_user_by_id(self, user_id: int, user_data: dict) -> Info:
+        """Edit user details by id"""
+        payload = user_data
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "PUT", self.url + str(f"users/{user_id}"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def delete_user_by_id(self, user_id: int) -> Info:
+        """Delete user by id"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "DELETE", self.url + str(f"users/{user_id}"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def create_rest_api_token(self, token_data: dict) -> dict:
+        """Create a new REST API Token"""
+        payload = token_data
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "POST", self.url + str("users/tokens"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                return info
+            case _:
+                print(response.text)
+
+    def get_tokens_by_type(self, token_type: str) -> dict:
+        """Get all the REST API tokens (active | expired)"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"users/tokens/{token_type}"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                return info
+            case _:
+                print(response.text)
+
+    # --- JOBS ---
+
+    def get_all_jobs_admin(self, status: str = None, sort: str = None) -> List[Job]:
+        """Gets all jobs created by all users (Admin only)"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {}
+        if status:
+            querystring["status"] = status
+        if sort:
+            querystring["sort"] = sort
+
+        response = requests.request(
+            "GET", self.url + str("jobs/all"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case [*args]:
+                jobs = [Job(**job) for job in args]
+                return jobs
+            case _:
+                print(response.text)
+
+    def get_scheduler_options_by_operation(self, operation_name: str) -> dict:
+        """Get scheduler options by operation"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"jobs/scheduler/operation/{operation_name}"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                return info
+            case _:
+                print(response.text)
+
+    def handle_scheduler_run(self, operation_data: dict) -> Info:
+        """Run the scheduler with selected options"""
+        payload = operation_data
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "POST", self.url + str("jobs/scheduler/operation/run"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def delete_job(self, job_id: int, queue_id: int) -> Info:
+        """Deletes a job using its Id and Queue"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "DELETE", self.url + str(f"jobs/{job_id}/{queue_id}"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def get_job_statistics(self) -> List[dict]:
+        """Get the statistics of all the jobs"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("jobs/dashboard/statistics"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_all_server_jobs(self) -> dict:
+        """Gets all jobs server jobs with scheduler status (Admin)"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("jobs/dashboard"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                return info
+            case _:
+                print(response.text)
+
+    # --- FOLDERS (additional) ---
+
+    def get_all_folder_contents(self, folder_id: int) -> List[dict]:
+        """Get all contents of a folder by id"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "groupName": self.group_name,
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"folders/{folder_id}/contents"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_unlinkable_contents(self, folder_id: int) -> dict:
+        """Get unlinkable contents of a folder by id"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "groupName": self.group_name,
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"folders/{folder_id}/contents/unlinkable"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                return info
+            case _:
+                print(response.text)
+
+    def unlink_content(self, content_id: int) -> Info:
+        """Unlink a content from a folder"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "groupName": self.group_name,
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "PUT", self.url + str(f"folders/contents/{content_id}/unlink"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    # --- GROUPS ---
+
+    def get_groups(self) -> List[Group]:
+        """Get the list of groups"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("groups"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                groups = [Group(**group) for group in args]
+                return groups
+            case _:
+                print(response.text)
+
+    def delete_group_by_id(self, group_id: int) -> Info:
+        """Delete group by id"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "DELETE", self.url + str(f"groups/{group_id}"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def add_group_member(self, group_id: int, user_id: int, member_data: dict) -> Info:
+        """Add user to a group"""
+        payload = member_data
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "POST", self.url + str(f"groups/{group_id}/user/{user_id}"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def delete_group_member(self, group_id: int, user_id: int) -> Info:
+        """Delete group member by groupId and userId"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "DELETE", self.url + str(f"groups/{group_id}/user/{user_id}"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def update_group_permission(self, group_id: int, user_id: int, permission_data: dict) -> Info:
+        """Update User's permission in group"""
+        payload = permission_data
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "PUT", self.url + str(f"groups/{group_id}/user/{user_id}"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def get_deletable_groups(self) -> List[Group]:
+        """Get list of deletable groups"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("groups/deletable"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                groups = [Group(**group) for group in args]
+                return groups
+            case _:
+                print(response.text)
+
+    def get_group_users_with_roles(self, group_id: int) -> List[dict]:
+        """Get the users with their roles from a group"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"groups/{group_id}/members"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    # --- REPORT ---
+
+    def upload_report(self, upload_id: int, report_format: str, file_path: str, report_options: dict = None) -> Info:
+        """Import a report to an existing upload"""
+        if not Path(file_path).exists():
+            print(f"File {file_path} does not exist")
+            return None
+
+        file_name = file_path.split("/").pop()
+        m = MultipartEncoder(
+            [
+                ("report", (file_name, open(file_path, "rb"), "application/octet-stream")),
+            ],
+            encoding="utf-8",
+        )
+        headers = {
+            "Authorization": self.bearer_token,
+            "Content-Type": m.content_type,
+        }
+        querystring = {
+            "upload": upload_id,
+            "reportFormat": report_format,
+        }
+
+        response = requests.request(
+            "POST", self.url + str("report/import"), data=m, headers=headers, verify=self.verify, params=querystring
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    # --- UPLOAD CONF ---
+
+    def get_conf_info(self, upload_id: int) -> List[dict]:
+        """Get the conf information of a particular upload"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str(f"uploads/{upload_id}/conf"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def update_conf_data(self, upload_id: int, conf_data: dict) -> List[Info]:
+        """Update the Conf page data"""
+        payload = conf_data
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "PUT", self.url + str(f"uploads/{upload_id}/conf"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                info_objs = [Info(**info) for info in args]
+                return info_objs
+            case _:
+                print(response.text)
+
+    # --- LICENSE (additional) ---
+
+    def import_license_csv(self, csv_file_path: str, delimiter: str = ",", enclosure: str = '"') -> Info:
+        """Import a csv license to the database"""
+        if not Path(csv_file_path).exists():
+            print(f"CSV file {csv_file_path} doesn't exist")
+            return None
+
+        m = MultipartEncoder(
+            [
+                ("file_input", (Path(csv_file_path).name, open(csv_file_path, "rb"), "text/csv")),
+                ("delimiter", delimiter),
+                ("enclosure", enclosure),
+            ],
+            encoding="utf-8",
+        )
+        headers = {
+            "Authorization": self.bearer_token,
+            "Content-Type": m.content_type,
+        }
+
+        response = requests.request(
+            "POST", self.url + str("license/import-csv"), data=m, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def export_license_csv(self, license_id: int = 0) -> str:
+        """Export a csv license"""
+        payload = ""
+        headers = {
+            "accept": "text/csv",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"id": license_id}
+
+        response = requests.request(
+            "GET", self.url + str("license/export-csv"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        if response.status_code == 200:
+            return response.text
+        else:
+            print(response.text)
+            return None
+
+    def import_license_json(self, json_file_path: str) -> Info:
+        """Import a json license to the database"""
+        if not Path(json_file_path).exists():
+            print(f"JSON file {json_file_path} doesn't exist")
+            return None
+
+        m = MultipartEncoder(
+            [
+                ("fileInput", (Path(json_file_path).name, open(json_file_path, "rb"), "application/json")),
+            ],
+            encoding="utf-8",
+        )
+        headers = {
+            "Authorization": self.bearer_token,
+            "Content-Type": m.content_type,
+        }
+
+        response = requests.request(
+            "POST", self.url + str("license/import-json"), data=m, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def export_license_json(self, license_id: int = 0) -> str:
+        """Export a json license"""
+        payload = ""
+        headers = {
+            "accept": "text/csv",
+            "Authorization": self.bearer_token,
+        }
+        querystring = {"id": license_id}
+
+        response = requests.request(
+            "GET", self.url + str("license/export-json"), data=payload, headers=headers, verify=self.verify, params=querystring
+        )
+
+        if response.status_code == 200:
+            return response.text
+        else:
+            print(response.text)
+            return None
+
+    def get_admin_license_candidates(self) -> List[dict]:
+        """Get license candidates for admin view"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("license/admincandidates"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def delete_license_candidate_by_id(self, candidate_id: int) -> Info:
+        """Delete license candidate by id"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "DELETE", self.url + str(f"license/admincandidates/{candidate_id}"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def get_admin_license_acknowledgements(self) -> List[dict]:
+        """Get all admin license acknowledgements"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("license/adminacknowledgements"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def mutate_admin_license_acknowledgement(self, ack_data: List[dict]) -> List[Info]:
+        """Add, Edit, Enable & Disable admin license acknowledgements"""
+        payload = ack_data
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "PUT", self.url + str("license/adminacknowledgements"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                info_objs = [Info(**info) for info in args]
+                return info_objs
+            case _:
+                print(response.text)
+
+    def get_all_standard_license_comments(self) -> List[dict]:
+        """Get all standard license comments"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("license/stdcomments"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def mutate_std_comments(self, comment_data: List[dict]) -> List[Info]:
+        """Add, Edit, Enable & Disable standard comments"""
+        payload = comment_data
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "PUT", self.url + str("license/stdcomments"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                info_objs = [Info(**info) for info in args]
+                return info_objs
+            case _:
+                print(response.text)
+
+    def verify_license(self, short_name: str, parent_shortname: str) -> Info:
+        """Verify a license as new or variant"""
+        payload = {"parentShortname": parent_shortname}
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "PUT", self.url + str(f"license/verify/{short_name}"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def merge_license(self, short_name: str, parent_shortname: str) -> Info:
+        """Merge a license with another"""
+        payload = {"parentShortname": parent_shortname}
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "PUT", self.url + str(f"license/merge/{short_name}"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                info_obj = Info(**info)
+                return info_obj
+            case _:
+                print(response.text)
+
+    def get_suggested_license(self, reference_text: str) -> dict:
+        """Get suggested license by reference text"""
+        payload = {"referenceText": reference_text}
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "POST", self.url + str("license/suggest"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                return info
+            case _:
+                print(response.text)
+
+    # --- OVERVIEW / ADMIN ---
+
+    def get_database_contents(self) -> List[dict]:
+        """Get database contents for the dashboard"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("overview/database/contents"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_php_info(self) -> dict:
+        """Get PHP info"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("overview/info/php"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case {**info}:
+                return info
+            case _:
+                print(response.text)
+
+    def get_disk_usage(self) -> List[dict]:
+        """Get disk usage"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("overview/disk/usage"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_database_metrics(self) -> List[dict]:
+        """Get database metrics for the dashboard"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("overview/database/metrics"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def get_active_queries(self) -> List[dict]:
+        """Get active queries from the database"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("overview/queries/active"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    # --- CUSTOMISE ---
+
+    def get_customise_data(self) -> List[dict]:
+        """Get the Admin configuration data"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("customise"), data=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                return args
+            case _:
+                print(response.text)
+
+    def update_customise_data(self, customise_data: dict) -> List[Info]:
+        """Update the Admin configuration data"""
+        payload = customise_data
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "PUT", self.url + str("customise"), json=payload, headers=headers, verify=self.verify
+        )
+
+        match response.json():
+            case [*args]:
+                info_objs = [Info(**info) for info in args]
+                return info_objs
+            case _:
+                print(response.text)
+
+    def get_banner_message(self) -> str:
+        """Get the Banner message"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+
+        response = requests.request(
+            "GET", self.url + str("customise/banner"), data=payload, headers=headers, verify=self.verify
+        )
+
+        if response.status_code == 200:
+            return response.text
+        else:
+            print(response.text)
+            return None
+
+    # =========================================================================
+    # CX Update helpers (delete, restore, update for copyrights, emails, urls, authors, eccs, keywords, ipras, scancode variants)
+    # =========================================================================
+
+    def _cx_delete(self, upload_id: int, item_id: int, cx_type: str, hash_val: str) -> Info:
+        """Generic CX delete"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        response = requests.request(
+            "DELETE", self.url + str(f"uploads/{upload_id}/item/{item_id}/{cx_type}/{hash_val}"), data=payload, headers=headers, verify=self.verify
+        )
+        match response.json():
+            case {**info}:
+                return Info(**info)
+            case _:
+                print(response.text)
+
+    def _cx_restore(self, upload_id: int, item_id: int, cx_type: str, hash_val: str) -> Info:
+        """Generic CX restore"""
+        payload = ""
+        headers = {
+            "accept": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        response = requests.request(
+            "PATCH", self.url + str(f"uploads/{upload_id}/item/{item_id}/{cx_type}/{hash_val}"), data=payload, headers=headers, verify=self.verify
+        )
+        match response.json():
+            case {**info}:
+                return Info(**info)
+            case _:
+                print(response.text)
+
+    def _cx_update(self, upload_id: int, item_id: int, cx_type: str, hash_val: str, new_content: dict) -> Info:
+        """Generic CX update"""
+        payload = new_content
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": self.bearer_token,
+        }
+        response = requests.request(
+            "PUT", self.url + str(f"uploads/{upload_id}/item/{item_id}/{cx_type}/{hash_val}"), json=payload, headers=headers, verify=self.verify
+        )
+        match response.json():
+            case {**info}:
+                return Info(**info)
+            case _:
+                print(response.text)
+
+    def delete_file_email(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_delete(upload_id, item_id, "emails", hash_val)
+
+    def restore_file_email(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_restore(upload_id, item_id, "emails", hash_val)
+
+    def update_file_email(self, upload_id: int, item_id: int, hash_val: str, new_content: dict) -> Info:
+        return self._cx_update(upload_id, item_id, "emails", hash_val, new_content)
+
+    def delete_file_url(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_delete(upload_id, item_id, "urls", hash_val)
+
+    def restore_file_url(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_restore(upload_id, item_id, "urls", hash_val)
+
+    def update_file_url(self, upload_id: int, item_id: int, hash_val: str, new_content: dict) -> Info:
+        return self._cx_update(upload_id, item_id, "urls", hash_val, new_content)
+
+    def delete_file_author(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_delete(upload_id, item_id, "authors", hash_val)
+
+    def restore_file_author(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_restore(upload_id, item_id, "authors", hash_val)
+
+    def update_file_author(self, upload_id: int, item_id: int, hash_val: str, new_content: dict) -> Info:
+        return self._cx_update(upload_id, item_id, "authors", hash_val, new_content)
+
+    def delete_file_ecc(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_delete(upload_id, item_id, "eccs", hash_val)
+
+    def restore_file_ecc(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_restore(upload_id, item_id, "eccs", hash_val)
+
+    def update_file_ecc(self, upload_id: int, item_id: int, hash_val: str, new_content: dict) -> Info:
+        return self._cx_update(upload_id, item_id, "eccs", hash_val, new_content)
+
+    def delete_file_keyword(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_delete(upload_id, item_id, "keywords", hash_val)
+
+    def restore_file_keyword(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_restore(upload_id, item_id, "keywords", hash_val)
+
+    def update_file_keyword(self, upload_id: int, item_id: int, hash_val: str, new_content: dict) -> Info:
+        return self._cx_update(upload_id, item_id, "keywords", hash_val, new_content)
+
+    def delete_file_ipra(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_delete(upload_id, item_id, "ipras", hash_val)
+
+    def restore_file_ipra(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_restore(upload_id, item_id, "ipras", hash_val)
+
+    def update_file_ipra(self, upload_id: int, item_id: int, hash_val: str, new_content: dict) -> Info:
+        return self._cx_update(upload_id, item_id, "ipras", hash_val, new_content)
+
+    def delete_file_scancode_copyright(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_delete(upload_id, item_id, "scancode-copyrights", hash_val)
+
+    def restore_file_scancode_copyright(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_restore(upload_id, item_id, "scancode-copyrights", hash_val)
+
+    def update_file_scancode_copyright(self, upload_id: int, item_id: int, hash_val: str, new_content: dict) -> Info:
+        return self._cx_update(upload_id, item_id, "scancode-copyrights", hash_val, new_content)
+
+    def delete_file_scancode_email(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_delete(upload_id, item_id, "scancode-emails", hash_val)
+
+    def restore_file_scancode_email(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_restore(upload_id, item_id, "scancode-emails", hash_val)
+
+    def update_file_scancode_email(self, upload_id: int, item_id: int, hash_val: str, new_content: dict) -> Info:
+        return self._cx_update(upload_id, item_id, "scancode-emails", hash_val, new_content)
+
+    def delete_file_scancode_url(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_delete(upload_id, item_id, "scancode-urls", hash_val)
+
+    def restore_file_scancode_url(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_restore(upload_id, item_id, "scancode-urls", hash_val)
+
+    def update_file_scancode_url(self, upload_id: int, item_id: int, hash_val: str, new_content: dict) -> Info:
+        return self._cx_update(upload_id, item_id, "scancode-urls", hash_val, new_content)
+
+    def delete_file_scancode_author(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_delete(upload_id, item_id, "scancode-authors", hash_val)
+
+    def restore_file_scancode_author(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_restore(upload_id, item_id, "scancode-authors", hash_val)
+
+    def update_file_scancode_author(self, upload_id: int, item_id: int, hash_val: str, new_content: dict) -> Info:
+        return self._cx_update(upload_id, item_id, "scancode-authors", hash_val, new_content)
+
+    def delete_file_user_copyright(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_delete(upload_id, item_id, "user-copyrights", hash_val)
+
+    def restore_file_user_copyright(self, upload_id: int, item_id: int, hash_val: str) -> Info:
+        return self._cx_restore(upload_id, item_id, "user-copyrights", hash_val)
+
+    def update_file_user_copyright(self, upload_id: int, item_id: int, hash_val: str, new_content: dict) -> Info:
+        return self._cx_update(upload_id, item_id, "user-copyrights", hash_val, new_content)
