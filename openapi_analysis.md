@@ -3,6 +3,8 @@
 ## Overview
 This document analyzes the FOSSology REST API specification (`openapi.yaml`) against the current implementation in `easy_fossy/__init__.py`. It identifies gaps and provides utility functions for business-relevant usecases.
 
+The `openapi.yaml` specification contains **167 operations** across 15 categories. All 167 operations have corresponding implementation methods in `easy_fossy/__init__.py`, achieving **100% implementation coverage**.
+
 ---
 
 ## 1. Endpoint Coverage Analysis
@@ -17,253 +19,286 @@ This document analyzes the FOSSology REST API specification (`openapi.yaml`) aga
 
 ### AUTH / INFO
 
-| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
-|---|---|---|---|
-| `POST /tokens` | `createToken` | ✅ | `get_token_by_uname_pwd` |
-| `GET /info` | `getInfo` | ✅ | `get_api_info` |
-| `GET /openapi` | `getOpenApi` | ✅ | `get_openapi_doc` |
-| `GET /health` | `getHealth` | ✅ | `get_health_status` |
+|| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
+||---|---|---|---|
+|| `POST /tokens` | `createToken` | ✅ | `get_token_by_uname_pwd` |
+|| `GET /info` | `getInfo` | ✅ | `get_api_info` |
+|| `GET /openapi` | `getOpenApi` | ✅ | `get_openapi_doc` |
+|| `GET /health` | `getHealth` | ✅ | `get_health_status` |
 
 ### MAINTENANCE
 
-| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
-|---|---|---|---|
-| `POST /maintenance` | `initiateMaintenance` | ✅ | `initiate_maintenance` |
+|| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
+||---|---|---|---|
+|| `POST /maintenance` | `initiateMaintenance` | ✅ | `initiate_maintenance` |
 
 ### OBLIGATIONS
 
-| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
-|---|---|---|---|
-| `GET /obligations/list` | `getObligationsList` | ✅ | `get_obligations_list` |
-| `GET /obligations/{id}` | `getObligationsData` | ✅ | `get_obligation_details` |
-| `DELETE /obligations/{id}` | `deleteObligationsData` | ✅ | `delete_obligation` |
-| `POST /obligations/import-csv` | `importObligationCsv` | ✅ | `import_obligation_csv` |
-| `GET /obligations/export-csv` | `exportLicenseObligations` | ✅ | `export_obligation_csv` |
-| `POST /obligations/import-json` | `importObligationsFromJSON` | ✅ | `import_obligation_json` |
-| `GET /obligations/export-json` | `exportObligationsToJSON` | ✅ | `export_obligation_json` |
-| `GET /obligations` | `getAllObligationsData` | ✅ | `get_all_obligations` |
+|| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
+||---|---|---|---|
+|| `GET /obligations/list` | `getObligationsList` | ✅ | `get_obligations_list` |
+|| `GET /obligations/{id}` | `getObligationsData` | ✅ | `get_obligation_details` |
+|| `DELETE /obligations/{id}` | `deleteObligationsData` | ✅ | `delete_obligation` |
+|| `POST /obligations/import-csv` | `importObligationCsv` | ✅ | `import_obligation_csv` |
+|| `GET /obligations/export-csv` | `exportLicenseObligations` | ✅ | `export_obligation_csv` |
+|| `POST /obligations/import-json` | `importObligationsFromJSON` | ✅ | `import_obligation_json` |
+|| `GET /obligations/export-json` | `exportObligationsToJSON` | ✅ | `export_obligation_json` |
+|| `GET /obligations` | `getAllObligationsData` | ✅ | `get_all_obligations` |
 
 ### UPLOADS — CRUD
 
-| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
-|---|---|---|---|
-| `GET /uploads/{id}` | `getUploadById` | ❌ | — |
-| `DELETE /uploads/{id}` | `deleteUploadById` | ✅ | `delete_uploads_by_upload_id` |
-| `PATCH /uploads/{id}` | `updateUploadById` | ❌ | — |
-| `PUT /uploads/{id}` | `moveUploadById` | ❌ | — |
-| `GET /uploads` | `getUploads` | ✅ | `get_all_uploads_based_on` / `get_all_uploads_based_on_common_assignee` |
-| `POST /uploads` | `createUpload` | ✅ | `get_upload_id_by_local_package_upload`, `get_upload_id_by_download_url_package_upload`, `get_upload_id_by_giturl_package_upload` |
+|| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
+||---|---|---|---|
+|| `GET /uploads/{id}` | `getUploadById` | ✅ | `get_upload_by_id` |
+|| `DELETE /uploads/{id}` | `deleteUploadById` | ✅ | `delete_uploads_by_upload_id` |
+|| `PATCH /uploads/{id}` | `updateUploadById` | ✅ | `update_upload_by_id` |
+|| `PUT /uploads/{id}` | `moveUploadById` | ✅ | `move_upload_by_id` |
+|| `GET /uploads` | `getUploads` | ✅ | `get_all_uploads_based_on` / `get_all_uploads_based_on_common_assignee` |
+|| `POST /uploads` | `createUpload` | ✅ | `get_upload_id_by_local_package_upload`, `get_upload_id_by_download_url_package_upload`, `get_upload_id_by_giturl_package_upload` |
 
 ### UPLOADS — File Operations
 
-| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
-|---|---|---|---|
-| `GET /uploads/{id}/download` | `getUploadFileById` | ✅ | `download_upload_file` |
-| `GET /uploads/{id}/summary` | `getSummaryByUploadId` | ✅ | `get_upload_summary_for_uploadid` |
-| `GET /uploads/{id}/item/{itemId}/info` | `getItemInfo` | ✅ | `get_file_info` |
-| `GET /uploads/{id}/licenses` | `getLicensesByUploadId` | ✅ | `get_licenses_found_by_agents_for_uploadid` |
-| `GET /uploads/{id}/copyrights` | `getCopyrightsByUploadId` | ✅ | `get_copyrights_by_upload_id` |
-| `PUT /uploads/{id}/permissions` | `setUploadPermissions` | ✅ | `set_upload_permissions` |
-| `GET /uploads/{id}/perm-groups` | `getGroupsWithPermissions` | ✅ | `get_group_permissions` |
-| `GET /uploads/{id}/item/{itemId}/highlight` | `getHighlightEntries` | ✅ | `get_highlight_entries` |
-| `GET /uploads/{id}/item/{itemId}/view` | `viewTheContentOfTheFile` | ✅ | `view_file_content` |
-| `PUT /uploads/{id}/item/{itemId}/clearing-decision` | `setClearingDecision` | ✅ | `set_clearing_decision` |
-| `POST /uploads/{id}/item/{itemId}/bulk-scan` | `scheduleBulkScan` | ✅ | `schedule_bulk_scan` |
-| `GET /uploads/{id}/item/{itemId}/bulk-history` | `getBulkHistory` | ✅ | `get_bulk_history` |
-| `GET /uploads/{id}/item/{itemId}/licenses` | `getLicenseDecisions` | ✅ | `get_license_decisions` |
-| `PUT /uploads/{id}/item/{itemId}/licenses` | `addEditDeleteLicenseDecision` | ✅ | `add_edit_delete_license_decision` |
-| `GET /uploads/{id}/licenses/main` | `getMainLicenses` | ✅ | `get_main_licenses` |
-| `POST /uploads/{id}/licenses/main` | `setMainLicense` | ✅ | `set_main_license` |
-| `DELETE /uploads/{id}/licenses/{shortName}/main` | `deleteMainLicense` | ✅ | `delete_main_license` |
-| `GET /uploads/{id}/item/{itemId}/prev-next` | `getPreviousAndNextItem` | ✅ | `get_prev_next_item` |
-| `GET /uploads/{id}/item/{itemId}/clearing-history` | `getClearingHistory` | ❌ | — |
-| `GET /uploads/{id}/clearing-progress` | `getClearingProgressInfo` | ❌ | — |
-| `GET /uploads/{id}/licenses/histogram` | `getLicensesHistogram` | ✅ | `get_licenses_by_upload_id` |
-| `GET /uploads/{id}/agents` | `getAgentsByUploadId` | ❌ | — |
-| `GET /uploads/{id}/licenses/edited` | `getAllEditedLicenses` | ❌ | — |
-| `GET /uploads/{id}/licenses/scanned` | `getAllScannedLicenses` | ❌ | — |
-| `GET /uploads/{id}/item/{itemId}/tree/view` | `getItemTreeView` | ❌ | — |
-| `GET /uploads/{id}/topitem` | `getTopItemId` | ✅ | `get_upload_tree_id_by_upload_id` |
-| `GET /uploads/{id}/licenses/reuse` | `getLicensesReuseSummary` | ❌ | — |
-| `GET /uploads/{id}/agents/revision` | `getRevisionsForAgents` | ❌ | — |
+|| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
+||---|---|---|---|
+|| `GET /uploads/{id}/download` | `getUploadFileById` | ✅ | `download_upload_file` |
+|| `GET /uploads/{id}/summary` | `getSummaryByUploadId` | ✅ | `get_upload_summary_for_uploadid` |
+|| `GET /uploads/{id}/item/{itemId}/info` | `getItemInfo` | ✅ | `get_file_info` |
+|| `GET /uploads/{id}/licenses` | `getLicensesByUploadId` | ✅ | `get_licenses_found_by_agents_for_uploadid` |
+|| `GET /uploads/{id}/copyrights` | `getCopyrightsByUploadId` | ✅ | `get_copyrights_by_upload_id` |
+|| `PUT /uploads/{id}/permissions` | `setUploadPermissions` | ✅ | `set_upload_permissions` |
+|| `GET /uploads/{id}/perm-groups` | `getGroupsWithPermissions` | ✅ | `get_group_permissions` |
+|| `GET /uploads/{id}/item/{itemId}/highlight` | `getHighlightEntries` | ✅ | `get_highlight_entries` |
+|| `GET /uploads/{id}/item/{itemId}/view` | `viewTheContentOfTheFile` | ✅ | `view_file_content` |
+|| `PUT /uploads/{id}/item/{itemId}/clearing-decision` | `setClearingDecision` | ✅ | `set_clearing_decision` |
+|| `POST /uploads/{id}/item/{itemId}/bulk-scan` | `scheduleBulkScan` | ✅ | `schedule_bulk_scan` |
+|| `GET /uploads/{id}/item/{itemId}/bulk-history` | `getBulkHistory` | ✅ | `get_bulk_history` |
+|| `GET /uploads/{id}/item/{itemId}/licenses` | `getLicenseDecisions` | ✅ | `get_license_decisions` |
+|| `PUT /uploads/{id}/item/{itemId}/licenses` | `addEditDeleteLicenseDecision` | ✅ | `add_edit_delete_license_decision` |
+|| `GET /uploads/{id}/licenses/main` | `getMainLicenses` | ✅ | `get_main_licenses` |
+|| `POST /uploads/{id}/licenses/main` | `setMainLicense` | ✅ | `set_main_license` |
+|| `DELETE /uploads/{id}/licenses/{shortName}/main` | `deleteMainLicense` | ✅ | `delete_main_license` |
+|| `GET /uploads/{id}/item/{itemId}/prev-next` | `getPreviousAndNextItem` | ✅ | `get_prev_next_item` |
+|| `GET /uploads/{id}/item/{itemId}/clearing-history` | `getClearingHistory` | ✅ | `get_clearing_history` |
+|| `GET /uploads/{id}/clearing-progress` | `getClearingProgressInfo` | ✅ | `get_clearing_progress_info` |
+|| `GET /uploads/{id}/licenses/histogram` | `getLicensesHistogram` | ✅ | `get_licenses_by_upload_id` |
+|| `GET /uploads/{id}/agents` | `getAgentsByUploadId` | ✅ | `get_agents_by_upload_id` |
+|| `GET /uploads/{id}/licenses/edited` | `getAllEditedLicenses` | ✅ | `get_all_edited_licenses` |
+|| `GET /uploads/{id}/licenses/scanned` | `getAllScannedLicenses` | ✅ | `get_all_scanned_licenses` |
+|| `GET /uploads/{id}/item/{itemId}/tree/view` | `getItemTreeView` | ✅ | `get_item_tree_view` |
+|| `GET /uploads/{id}/topitem` | `getTopItemId` | ✅ | `get_upload_tree_id_by_upload_id` |
+|| `GET /uploads/{id}/licenses/reuse` | `getLicensesReuseSummary` | ✅ | `get_licenses_reuse_summary` |
+|| `GET /uploads/{id}/agents/revision` | `getRevisionsForAgents` | ✅ | `get_revisions_for_agents` |
 
 ### UPLOADS — One-Shot Scanners
 
-| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
-|---|---|---|---|
-| `POST /uploads/oneshot/nomos` | `runOneShotNomos` | ❌ | — |
-| `POST /uploads/oneshot/monk` | `runOneShotMonk` | ❌ | — |
-| `POST /uploads/oneshot/ceu` | `runOneShotCEU` | ❌ | — |
+|| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
+||---|---|---|---|
+|| `POST /uploads/oneshot/nomos` | `runOneShotNomos` | ✅ | `run_one_shot_nomos` |
+|| `POST /uploads/oneshot/monk` | `runOneShotMonk` | ✅ | `run_one_shot_monk` |
+|| `POST /uploads/oneshot/ceu` | `runOneShotCEU` | ✅ | `run_one_shot_ceu` |
 
 ### COPYRIGHTS / CX ENDPOINTS
 
-| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
-|---|---|---|---|
-| `GET .../item/{itemId}/copyrights` | `getFileCopyrights` | ✅ | `get_copyrights_by_upload_id_uploadtree_id` |
-| `DELETE .../copyrights/{hash}` | `deleteFileCopyrights` | ❌ | — |
-| `PATCH .../copyrights/{hash}` | `restoreFileCopyrights` | ❌ | — |
-| `PUT .../copyrights/{hash}` | `updateFileCopyrights` | ❌ | — |
-| `GET .../user-copyrights` | `getFileUserCopyrights` | ❌ | — |
-| `GET .../scancode-copyrights` | `getFileScanCodeCopyrights` | ❌ | — |
-| `GET .../emails` | `getFileEmails` | ❌ | — |
-| `GET .../scancode-emails` | `getFileScanCodeEmail` | ❌ | — |
-| `GET .../urls` | `getFileUrls` | ❌ | — |
-| `GET .../scancode-urls` | `getFileScanCodeUrl` | ❌ | — |
-| `GET .../authors` | `getFileAuthors` | ❌ | — |
-| `GET .../scancode-authors` | `getFileScanCodeAuthor` | ❌ | — |
-| `GET .../eccs` | `getFileEccs` | ❌ | — |
-| `GET .../keywords` | `getFileKeywords` | ❌ | — |
-| `GET .../ipras` | `getFileIpras` | ❌ | — |
-| `GET /uploads/{id}/item/{ItemId}/totalcopyrights` | `getTotalFileCopyrights` | ❌ | — |
-| `GET /uploads/{id}/item/{ItemId}/totalusercopyrights` | `getTotalFileUserCopyrights` | ❌ | — |
+|| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
+||---|---|---|---|
+|| `GET .../item/{itemId}/copyrights` | `getFileCopyrights` | ✅ | `get_file_copyrights` |
+|| `DELETE .../copyrights/{hash}` | `deleteFileCopyrights` | ✅ | `delete_file_copyright` |
+|| `PATCH .../copyrights/{hash}` | `restoreFileCopyrights` | ✅ | `restore_file_copyright` |
+|| `PUT .../copyrights/{hash}` | `updateFileCopyrights` | ✅ | `update_file_copyright` |
+|| `GET .../user-copyrights` | `getFileUserCopyrights` | ✅ | `get_file_user_copyrights` |
+|| `DELETE .../user-copyrights/{hash}` | `deleteFileUserCopyright` | ✅ | `delete_file_user_copyright` |
+|| `PATCH .../user-copyrights/{hash}` | `restoreFileUserCopyright` | ✅ | `restore_file_user_copyright` |
+|| `PUT .../user-copyrights/{hash}` | `updateFileUserCopyright` | ✅ | `update_file_user_copyright` |
+|| `GET .../scancode-copyrights` | `getFileScanCodeCopyrights` | ✅ | `get_file_scancode_copyrights` |
+|| `DELETE .../scancode-copyrights/{hash}` | `deleteFileScanCodeCopyright` | ✅ | `delete_file_scancode_copyright` |
+|| `PATCH .../scancode-copyrights/{hash}` | `restoreFileScanCodeCopyright` | ✅ | `restore_file_scancode_copyright` |
+|| `PUT .../scancode-copyrights/{hash}` | `updateFileScanCodeCopyright` | ✅ | `update_file_scancode_copyright` |
+|| `GET .../emails` | `getFileEmails` | ✅ | `get_file_emails` |
+|| `DELETE .../emails/{hash}` | `deleteFileEmails` | ✅ | `delete_file_email` |
+|| `PATCH .../emails/{hash}` | `restoreFileEmail` | ✅ | `restore_file_email` |
+|| `PUT .../emails/{hash}` | `updateFileEmail` | ✅ | `update_file_email` |
+|| `GET .../scancode-emails` | `getFileScanCodeEmail` | ✅ | `get_file_scancode_emails` |
+|| `DELETE .../scancode-emails/{hash}` | `deleteFileScanCodeEmail` | ✅ | `delete_file_scancode_email` |
+|| `PATCH .../scancode-emails/{hash}` | `restoreFileScanCodeEmail` | ✅ | `restore_file_scancode_email` |
+|| `PUT .../scancode-emails/{hash}` | `updateFileScanCodeEmail` | ✅ | `update_file_scancode_email` |
+|| `GET .../urls` | `getFileUrls` | ✅ | `get_file_urls` |
+|| `DELETE .../urls/{hash}` | `deleteFileUrl` | ✅ | `delete_file_url` |
+|| `PATCH .../urls/{hash}` | `restoreFileUrl` | ✅ | `restore_file_url` |
+|| `PUT .../urls/{hash}` | `updateFileUrl` | ✅ | `update_file_url` |
+|| `GET .../scancode-urls` | `getFileScanCodeUrl` | ✅ | `get_file_scancode_urls` |
+|| `DELETE .../scancode-urls/{hash}` | `deleteFileScanCodeUrl` | ✅ | `delete_file_scancode_url` |
+|| `PATCH .../scancode-urls/{hash}` | `restoreFileScanCodeUrl` | ✅ | `restore_file_scancode_url` |
+|| `PUT .../scancode-urls/{hash}` | `updateFileScanCodeUrl` | ✅ | `update_file_scancode_url` |
+|| `GET .../authors` | `getFileAuthors` | ✅ | `get_file_authors` |
+|| `DELETE .../authors/{hash}` | `deleteFileAuthor` | ✅ | `delete_file_author` |
+|| `PATCH .../authors/{hash}` | `restoreFileAuthor` | ✅ | `restore_file_author` |
+|| `PUT .../authors/{hash}` | `updateFileAuthor` | ✅ | `update_file_author` |
+|| `GET .../scancode-authors` | `getFileScanCodeAuthor` | ✅ | `get_file_scancode_authors` |
+|| `DELETE .../scancode-authors/{hash}` | `deleteFileScanCodeAuthor` | ✅ | `delete_file_scancode_author` |
+|| `PATCH .../scancode-authors/{hash}` | `restoreFileScanCodeAuthor` | ✅ | `restore_file_scancode_author` |
+|| `PUT .../scancode-authors/{hash}` | `updateFileScanCodeAuthor` | ✅ | `update_file_scancode_author` |
+|| `GET .../eccs` | `getFileEccs` | ✅ | `get_file_eccs` |
+|| `DELETE .../eccs/{hash}` | `deleteFileEcc` | ✅ | `delete_file_ecc` |
+|| `PATCH .../eccs/{hash}` | `restoreFileEcc` | ✅ | `restore_file_ecc` |
+|| `PUT .../eccs/{hash}` | `updateFileEcc` | ✅ | `update_file_ecc` |
+|| `GET .../keywords` | `getFileKeywords` | ✅ | `get_file_keywords` |
+|| `DELETE .../keywords/{hash}` | `deleteFileKeyword` | ✅ | `delete_file_keyword` |
+|| `PATCH .../keywords/{hash}` | `restoreFileKeyword` | ✅ | `restore_file_keyword` |
+|| `PUT .../keywords/{hash}` | `updateFileKeyword` | ✅ | `update_file_keyword` |
+|| `GET .../ipras` | `getFileIpras` | ✅ | `get_file_ipras` |
+|| `DELETE .../ipras/{hash}` | `deleteFileIpra` | ✅ | `delete_file_ipra` |
+|| `PATCH .../ipras/{hash}` | `restoreFileIpra` | ✅ | `restore_file_ipra` |
+|| `PUT .../ipras/{hash}` | `updateFileIpra` | ✅ | `update_file_ipra` |
+|| `GET .../totalcopyrights` | `getTotalFileCopyrights` | ✅ | `get_total_file_copyrights` |
+|| `GET .../totalusercopyrights` | `getTotalFileUserCopyrights` | ✅ | `get_total_file_user_copyrights` |
 
 ### SEARCH
 
-| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
-|---|---|---|---|
-| `GET /search` | `searchFile` | ✅ | `search_files_based_on` |
-| `POST /filesearch` | `getFiles` | ✅ | `get_file_by_any_one_of_sha1_or_md5_or_sha256` |
+|| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
+||---|---|---|---|
+|| `GET /search` | `searchFile` | ✅ | `search_files_based_on` |
+|| `POST /filesearch` | `getFiles` | ✅ | `get_file_by_any_one_of_sha1_or_md5_or_sha256` |
 
 ### USERS
 
-| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
-|---|---|---|---|
-| `POST /users` | `createUser` | ❌ | — |
-| `GET /users` | `getUsers` | ✅ | `get_all_users` |
-| `GET /users/{id}` | `getUserById` | ✅ | `get_user_by_id` |
-| `PUT /users/{id}` | `modifyUserById` | ❌ | — |
-| `DELETE /users/{id}` | `deleteUserById` | ❌ | — |
-| `GET /users/self` | `getSelf` | ❌ | — |
-| `POST /users/tokens` | `createRestApiToken` | ❌ | — |
-| `GET /users/tokens/{type}` | `getTokensByType` | ❌ | — |
+|| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
+||---|---|---|---|
+|| `POST /users` | `createUser` | ✅ | `create_user` |
+|| `GET /users` | `getUsers` | ✅ | `get_all_users` |
+|| `GET /users/{id}` | `getUserById` | ✅ | `get_user_by_id` |
+|| `PUT /users/{id}` | `modifyUserById` | ✅ | `modify_user_by_id` |
+|| `DELETE /users/{id}` | `deleteUserById` | ✅ | `delete_user_by_id` |
+|| `GET /users/self` | `getSelf` | ✅ | `get_self` |
+|| `POST /users/tokens` | `createRestApiToken` | ✅ | `create_rest_api_token` |
+|| `GET /users/tokens/{type}` | `getTokensByType` | ✅ | `get_tokens_by_type` |
 
 ### JOBS
 
-| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
-|---|---|---|---|
-| `GET /jobs` | `getJobs` | ✅ | `get_all_jobs` |
-| `POST /jobs` | `startJobs` | ✅ | `trigger_analysis_for_upload_id` |
-| `GET /jobs/all` | `getAllJobs` | ❌ | — |
-| `GET /jobs/scheduler/operation/{operationName}` | `getSchedulerOptionsByOperation` | ❌ | — |
-| `POST /jobs/scheduler/operation/run` | `handleSchedulerRun` | ❌ | — |
-| `GET /jobs/{id}` | `getJobById` | ✅ | `get_job_info_by_id` |
-| `GET /jobs/history` | `getJobsHistoryPerUpload` | ✅ | `get_job_info_by_upload_id` |
-| `GET /jobs/dashboard/statistics` | `getJobStatistics` | ❌ | — |
-| `GET /jobs/dashboard` | `getAllServerJobs` | ❌ | — |
-| `DELETE /jobs/{id}/{queue}` | `deleteJob` | ❌ | — |
+|| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
+||---|---|---|---|
+|| `GET /jobs` | `getJobs` | ✅ | `get_all_jobs` |
+|| `POST /jobs` | `startJobs` | ✅ | `trigger_analysis_for_upload_id` |
+|| `GET /jobs/all` | `getAllJobs` | ✅ | `get_all_jobs_admin` |
+|| `GET /jobs/scheduler/operation/{operationName}` | `getSchedulerOptionsByOperation` | ✅ | `get_scheduler_options_by_operation` |
+|| `POST /jobs/scheduler/operation/run` | `handleSchedulerRun` | ✅ | `handle_scheduler_run` |
+|| `GET /jobs/{id}` | `getJobById` | ✅ | `get_job_info_by_id` |
+|| `GET /jobs/history` | `getJobsHistoryPerUpload` | ✅ | `get_job_info_by_upload_id` |
+|| `GET /jobs/dashboard/statistics` | `getJobStatistics` | ✅ | `get_job_statistics` |
+|| `GET /jobs/dashboard` | `getAllServerJobs` | ✅ | `get_all_server_jobs` |
+|| `DELETE /jobs/{id}/{queue}` | `deleteJob` | ✅ | `delete_job` |
 
 ### FOLDERS
 
-| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
-|---|---|---|---|
-| `GET /folders` | `getFolders` | ✅ | `get_all_folders` |
-| `POST /folders` | `createFolder` | ✅ | `create_folder_under_parent_folder_id` |
-| `GET /folders/{id}` | `getFolderById` | ✅ | `get_folder_info_by_id` |
-| `DELETE /folders/{id}` | `deleteFolderById` | ✅ | `delete_folder_by_id` |
-| `PATCH /folders/{id}` | `patchFolderById` | ✅ | `change_folder_name_or_desc` |
-| `PUT /folders/{id}` | `moveFolderById` | ✅ | `apply_action_to_folderid` |
-| `PUT /folders/contents/{contentId}/unlink` | `unlinkContent` | ❌ | — |
-| `GET /folders/{id}/contents` | `getAllFolderContents` | ❌ | — |
-| `GET /folders/{id}/contents/unlinkable` | `getUnlinkableContents` | ❌ | — |
+|| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
+||---|---|---|---|
+|| `GET /folders` | `getFolders` | ✅ | `get_all_folders` |
+|| `POST /folders` | `createFolder` | ✅ | `create_folder_under_parent_folder_id` |
+|| `GET /folders/{id}` | `getFolderById` | ✅ | `get_folder_info_by_id` |
+|| `DELETE /folders/{id}` | `deleteFolderById` | ✅ | `delete_folder_by_id` |
+|| `PATCH /folders/{id}` | `patchFolderById` | ✅ | `change_folder_name_or_desc` |
+|| `PUT /folders/{id}` | `moveFolderById` | ✅ | `apply_action_to_folderid` |
+|| `PUT /folders/contents/{contentId}/unlink` | `unlinkContent` | ✅ | `unlink_content` |
+|| `GET /folders/{id}/contents` | `getAllFolderContents` | ✅ | `get_all_folder_contents` |
+|| `GET /folders/{id}/contents/unlinkable` | `getUnlinkableContents` | ✅ | `get_unlinkable_contents` |
 
 ### GROUPS
 
-| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
-|---|---|---|---|
-| `GET /groups` | `getGroups` | ❌ | — |
-| `POST /groups` | `createGroup` | ✅ | `create_new_user_group` |
-| `DELETE /groups/{id}` | `deleteGroupById` | ❌ | — |
-| `DELETE /groups/{id}/user/{userId}` | `deleteGroupMemberByGroupIdAndUserId` | ❌ | — |
-| `POST /groups/{id}/user/{userId}` | `addMember` | ❌ | — |
-| `PUT /groups/{id}/user/{userId}` | `updatePermissionByGroupIdAndUserId` | ❌ | — |
-| `GET /groups/deletable` | `deletableGroups` | ❌ | — |
-| `GET /groups/{id}/members` | `getGroupUsersWithRoles` | ❌ | — |
+|| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
+||---|---|---|---|
+|| `GET /groups` | `getGroups` | ✅ | `get_groups` |
+|| `POST /groups` | `createGroup` | ✅ | `create_new_user_group` |
+|| `DELETE /groups/{id}` | `deleteGroupById` | ✅ | `delete_group_by_id` |
+|| `DELETE /groups/{id}/user/{userId}` | `deleteGroupMemberByGroupIdAndUserId` | ✅ | `delete_group_member` |
+|| `POST /groups/{id}/user/{userId}` | `addMember` | ✅ | `add_group_member` |
+|| `PUT /groups/{id}/user/{userId}` | `updatePermissionByGroupIdAndUserId` | ✅ | `update_group_permission` |
+|| `GET /groups/deletable` | `deletableGroups` | ✅ | `get_deletable_groups` |
+|| `GET /groups/{id}/members` | `getGroupUsersWithRoles` | ✅ | `get_group_users_with_roles` |
 
 ### REPORT
 
-| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
-|---|---|---|---|
-| `GET /report` | `getReportsByUpload` | ✅ | `generate_and_get_desired_report_for_uploadid` |
-| `GET /report/{id}` | `getReportById` | ✅ | (inside generate_and_get_desired_report_for_uploadid) |
-| `POST /report/import` | `uploadReport` | ❌ | — |
+|| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
+||---|---|---|---|
+|| `GET /report` | `getReportsByUpload` | ✅ | `generate_and_get_desired_report_for_uploadid` |
+|| `GET /report/{id}` | `getReportById` | ✅ | `generate_and_get_desired_report_for_uploadid` |
+|| `POST /report/import` | `uploadReport` | ✅ | `upload_report` |
 
 ### UPLOAD CONF
 
-| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
-|---|---|---|---|
-| `GET /uploads/{id}/conf` | `getConfInfo` | ❌ | — |
-| `PUT /uploads/{id}/conf` | `updateConfData` | ❌ | — |
+|| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
+||---|---|---|---|
+|| `GET /uploads/{id}/conf` | `getConfInfo` | ✅ | `get_conf_info` |
+|| `PUT /uploads/{id}/conf` | `updateConfData` | ✅ | `update_conf_data` |
 
 ### LICENSE
 
-| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
-|---|---|---|---|
-| `GET /license` | `getLicenses` | ✅ | `get_all_license_based_on` |
-| `POST /license` | `createLicense` | ✅ | `add_new_license` |
-| `POST /license/import-csv` | `importLicense` | ❌ | — |
-| `GET /license/export-csv` | `exportLicense` | ❌ | — |
-| `POST /license/import-json` | `handleImportLicense` | ❌ | — |
-| `GET /license/export-json` | `exportAdminLicenseToJSON` | ❌ | — |
-| `GET /license/{shortname}` | `getLicenseByShortname` | ✅ | `get_license_by_short_name` |
-| `PATCH /license/{shortname}` | `updateLicenseByShortname` | ✅ | `update_license_info_by_short_name` |
-| `GET /license/admincandidates` | `getAdminLicenseCandidates` | ❌ | — |
-| `DELETE /license/admincandidates/{id}` | `deleteByLicenseCandidateId` | ❌ | — |
-| `GET /license/adminacknowledgements` | `getAdminLicenseAcknowledgements` | ❌ | — |
-| `PUT /license/adminacknowledgements` | `mutateAdminLicenseAcknowledgement` | ❌ | — |
-| `GET /license/stdcomments` | `getAllStandardLicenseComments` | ❌ | — |
-| `PUT /license/stdcomments` | `mutateStdComments` | ❌ | — |
-| `PUT /license/verify/{shortname}` | `verifyLicense` | ❌ | — |
-| `PUT /license/merge/{shortname}` | `mergeLicense` | ❌ | — |
-| `POST /license/suggest` | `getSuggestedLicense` | ❌ | — |
+|| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
+||---|---|---|---|
+|| `GET /license` | `getLicenses` | ✅ | `get_all_license_based_on` |
+|| `POST /license` | `createLicense` | ✅ | `add_new_license` |
+|| `POST /license/import-csv` | `importLicense` | ✅ | `import_license_csv` |
+|| `GET /license/export-csv` | `exportLicense` | ✅ | `export_license_csv` |
+|| `POST /license/import-json` | `handleImportLicense` | ✅ | `import_license_json` |
+|| `GET /license/export-json` | `exportAdminLicenseToJSON` | ✅ | `export_license_json` |
+|| `GET /license/{shortname}` | `getLicenseByShortname` | ✅ | `get_license_by_short_name` |
+|| `PATCH /license/{shortname}` | `updateLicenseByShortname` | ✅ | `update_license_info_by_short_name` |
+|| `GET /license/admincandidates` | `getAdminLicenseCandidates` | ✅ | `get_admin_license_candidates` |
+|| `DELETE /license/admincandidates/{id}` | `deleteByLicenseCandidateId` | ✅ | `delete_license_candidate_by_id` |
+|| `GET /license/adminacknowledgements` | `getAdminLicenseAcknowledgements` | ✅ | `get_admin_license_acknowledgements` |
+|| `PUT /license/adminacknowledgements` | `mutateAdminLicenseAcknowledgement` | ✅ | `mutate_admin_license_acknowledgement` |
+|| `GET /license/stdcomments` | `getAllStandardLicenseComments` | ✅ | `get_all_standard_license_comments` |
+|| `PUT /license/stdcomments` | `mutateStdComments` | ✅ | `mutate_std_comments` |
+|| `PUT /license/verify/{shortname}` | `verifyLicense` | ✅ | `verify_license` |
+|| `PUT /license/merge/{shortname}` | `mergeLicense` | ✅ | `merge_license` |
+|| `POST /license/suggest` | `getSuggestedLicense` | ✅ | `get_suggested_license` |
 
 ### OVERVIEW / ADMIN
 
-| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
-|---|---|---|---|
-| `GET /overview/database/contents` | `getDatabaseContents` | ❌ | — |
-| `GET /overview/info/php` | `getPhpInfo` | ❌ | — |
-| `GET /overview/disk/usage` | `getDiskUsage` | ❌ | — |
-| `GET /overview/database/metrics` | `getDatabaseMetrics` | ❌ | — |
-| `GET /overview/queries/active` | `getActiveQueries` | ❌ | — |
+|| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
+||---|---|---|---|
+|| `GET /overview/database/contents` | `getDatabaseContents` | ✅ | `get_database_contents` |
+|| `GET /overview/info/php` | `getPhpInfo` | ✅ | `get_php_info` |
+|| `GET /overview/disk/usage` | `getDiskUsage` | ✅ | `get_disk_usage` |
+|| `GET /overview/database/metrics` | `getDatabaseMetrics` | ✅ | `get_database_metrics` |
+|| `GET /overview/queries/active` | `getActiveQueries` | ✅ | `get_active_queries` |
 
 ### CUSTOMISE
 
-| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
-|---|---|---|---|
-| `GET /customise` | `getCustomiseData` | ❌ | — |
-| `PUT /customise` | `updateCustomiseData` | ❌ | — |
-| `GET /customise/banner` | `getBannerMessage` | ❌ | — |
+|| OpenAPI Endpoint | Operation ID | Status | Implementation Method |
+||---|---|---|---|
+|| `GET /customise` | `getCustomiseData` | ✅ | `get_customise_data` |
+|| `PUT /customise` | `updateCustomiseData` | ✅ | `update_customise_data` |
+|| `GET /customise/banner` | `getBannerMessage` | ✅ | `get_banner_message` |
 
 ---
 
 ## 2. Summary Statistics
 
-| Category | Total Endpoints | Implemented | Missing |
-|---|---|---|---|
-| Auth/Info | 4 | 4 | 0 |
-| Maintenance | 1 | 1 | 0 |
-| Obligations | 8 | 8 | 0 |
-| Uploads (CRUD + FileOps) | 50 | 25 | 25 |
-| Copyrights/CX | 27 | 1 | 26 |
-| Search | 2 | 2 | 0 |
-| Users | 8 | 2 | 6 |
-| Jobs | 10 | 4 | 6 |
-| Folders | 9 | 6 | 3 |
-| Groups | 8 | 1 | 7 |
-| Report | 3 | 2 | 1 |
-| Upload Conf | 2 | 0 | 2 |
-| License | 17 | 4 | 13 |
-| Overview/Admin | 6 | 0 | 6 |
-| Customise | 3 | 0 | 3 |
-| **Total** | **148** | **55** | **93** |
+|| Category | Total Endpoints | Implemented | Missing |
+||---|---|---|---|
+|| Auth/Info | 4 | 4 | 0 |
+|| Maintenance | 1 | 1 | 0 |
+|| Obligations | 8 | 8 | 0 |
+|| Uploads (CRUD + FileOps + One-Shot) | 36 | 36 | 0 |
+|| Copyrights/CX | 51 | 51 | 0 |
+|| Search | 2 | 2 | 0 |
+|| Users | 8 | 8 | 0 |
+|| Jobs | 10 | 10 | 0 |
+|| Folders | 9 | 9 | 0 |
+|| Groups | 8 | 8 | 0 |
+|| Report | 3 | 3 | 0 |
+|| Upload Conf | 2 | 2 | 0 |
+|| License | 17 | 17 | 0 |
+|| Overview/Admin | 5 | 5 | 0 |
+|| Customise | 3 | 3 | 0 |
+|| **Total** | **167** | **167** | **0** |
 
-**Implementation coverage: ~37%**
+**Implementation coverage: 100%**
 
 ---
 
 ## 3. Business-Relevant Utility Functions
 
-The following utility functions combine multiple API calls to perform complete business workflows:
+The following utility functions combine multiple API calls to perform complete business workflows. These are implemented in `easy_fossy/usecases.py`.
 
 ### Usecase 1: Full Package Scan Workflow
 Upload a package (file/URL/git), trigger analysis, wait for completion, generate report
@@ -307,28 +342,41 @@ Generate SPDX/Dep5/ReadmeOSS reports
 
 ---
 
-## Implementation Status (Completed)
+## 4. Implementation Status (Completed)
 
-All 93 missing API methods from the OpenAPI spec have been implemented in
-`__init__.py` (lines 2379–4075). The 10 business-relevant utility functions
-have been implemented in `usecases.py`.
+All 167 operations from the OpenAPI specification have been implemented in
+`easy_fossy/__init__.py`. The 10 business-relevant utility functions
+have been implemented in `easy_fossy/usecases.py`.
 
 ### New Methods Added
 
-**Uploads (10):** `get_upload_by_id`, `update_upload_by_id`, `move_upload_by_id`,
+**Uploads (13):** `get_upload_by_id`, `update_upload_by_id`, `move_upload_by_id`,
 `get_clearing_history`, `get_clearing_progress_info`, `get_agents_by_upload_id`,
 `get_all_edited_licenses`, `get_all_scanned_licenses`, `get_item_tree_view`,
 `get_licenses_reuse_summary`, `get_revisions_for_agents`, `run_one_shot_nomos`,
 `run_one_shot_monk`, `run_one_shot_ceu`
 
-**Copyrights/CX (32):** `get_file_copyrights`, `delete_file_copyright`,
+**Copyrights/CX (51):** `get_file_copyrights`, `delete_file_copyright`,
 `restore_file_copyright`, `update_file_copyright`, `get_file_user_copyrights`,
-`get_file_scancode_copyrights`, `get_file_emails`, `get_file_scancode_emails`,
-`get_file_urls`, `get_file_scancode_urls`, `get_file_authors`,
-`get_file_scancode_authors`, `get_file_eccs`, `get_file_keywords`,
-`get_file_ipras`, `get_total_file_copyrights`, `get_total_file_user_copyrights`,
-plus 15 delete/restore/update helpers for emails, urls, authors, eccs,
-keywords, ipras, scancode variants, and user-copyrights
+`delete_file_user_copyright`, `restore_file_user_copyright`,
+`update_file_user_copyright`, `get_file_scancode_copyrights`,
+`delete_file_scancode_copyright`, `restore_file_scancode_copyright`,
+`update_file_scancode_copyright`, `get_file_emails`, `delete_file_email`,
+`restore_file_email`, `update_file_email`, `get_file_scancode_emails`,
+`delete_file_scancode_email`, `restore_file_scancode_email`,
+`update_file_scancode_email`, `get_file_urls`, `delete_file_url`,
+`restore_file_url`, `update_file_url`, `get_file_scancode_urls`,
+`delete_file_scancode_url`, `restore_file_scancode_url`,
+`update_file_scancode_url`, `get_file_authors`, `delete_file_author`,
+`restore_file_author`, `update_file_author`, `get_file_scancode_authors`,
+`delete_file_scancode_author`, `restore_file_scancode_author`,
+`update_file_scancode_author`, `get_file_eccs`, `delete_file_ecc`,
+`restore_file_ecc`, `update_file_ecc`, `get_file_keywords`,
+`delete_file_keyword`, `restore_file_keyword`, `update_file_keyword`,
+`get_file_ipras`, `delete_file_ipra`, `restore_file_ipra`,
+`update_file_ipra`, `get_total_file_copyrights`, `get_total_file_user_copyrights`
+
+Plus 3 internal helper methods: `_cx_delete`, `_cx_restore`, `_cx_update`
 
 **Users (6):** `get_self`, `create_user`, `modify_user_by_id`,
 `delete_user_by_id`, `create_rest_api_token`, `get_tokens_by_type`
