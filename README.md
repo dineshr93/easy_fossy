@@ -56,30 +56,23 @@ pip install .
 
 - **Python 3.9+** (uses structural pattern matching)
 - A running FOSSology instance with REST API enabled
-- Configuration file (`config.ini`) with server credentials
+- Credentials (either via `config.ini` or Environment Variables)
 
 ---
 
 ## Quick Start
 
-### 1. Configure `config.ini`
+You can configure the client in two ways: using a configuration file or environment variables.
+
+### Option 1: Using `config.ini` (File-based)
+
+**1. Configure `config.ini`**
 
 ```ini
 [test]
 url = http://fossology-test.com:port/repo/api/v1/
-uname =
-pwd =
-access = write
-bearer_token = Bearer YOUR_TOKEN_HERE
-token_valdity_days = 365
-token_expire = 2026-09-09
-reports_location = reports/
-group_name = fossy
-
-[prod]
-url = http://fossology.com:port/repo/api/v1/
-uname =
-pwd =
+uname = your_username
+pwd = your_password
 access = write
 bearer_token = Bearer YOUR_TOKEN_HERE
 token_valdity_days = 365
@@ -88,7 +81,7 @@ reports_location = reports/
 group_name = fossy
 ```
 
-### 2. Kickstart
+**2. Kickstart**
 
 ```python
 from easy_fossy import easy_fossy as fossy
@@ -102,12 +95,37 @@ client = fossy('path/to/config.ini', 'prod', verify=True)
 
 ---
 
+### Option 2: Using Environment Variables (Cloud/Docker)
+
+This method is ideal for CI/CD pipelines, Docker containers, or cloud deployments where you prefer not to store credentials in files.
+
+**1. Set Environment Variables**
+
+```bash
+export FOSSY_URL="http://fossology.com:port/repo/api/v1/"
+export FOSSY_BEARER_TOKEN="Bearer YOUR_TOKEN_HERE"
+export FOSSY_TOKEN_EXPIRE="2026-09-09"
+export FOSSY_ACCESS="write"
+export FOSSY_VERIFY="false"
+```
+
+**2. Kickstart**
+
+```python
+from easy_fossy.client import FossyClient
+
+# Initialize the client directly from environment variables
+client = FossyClient.from_env(verify=False)
+```
+
+---
+
 ## API Coverage
 
 `easy_fossy` now provides **184 methods** covering **148 endpoints** from the FOSSology REST API OpenAPI specification (~100% coverage). 
 
 ### Modular Architecture
-The client is now organized into **Resource** modules for better discoverability and maintainability. You access API methods through these resource objects:
+The client is organized into **Resource** modules for better discoverability. You access API methods through these resource objects:
 
 - `client.uploads` - Upload management
 - `client.folders` - Folder management
