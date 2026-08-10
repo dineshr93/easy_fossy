@@ -11,6 +11,10 @@ from typing import List, Optional, Union, Any
 from pydantic import BaseModel, Field, SecretStr, constr, RootModel,field_validator
 
 
+class Version(Enum):
+    V1 = "v1"
+    V2 = "v2"
+
 class LicenseDecider(BaseModel):
     nomos_monk: Optional[bool] = Field(
         None,
