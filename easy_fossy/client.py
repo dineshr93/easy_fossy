@@ -11,9 +11,14 @@ from .resources.folders import FoldersResource
 from .exceptions import FossyAuthError
 
 class FossyClient:
-    def __init__(self, config_file: str, server_to_use: str = "test", verify: bool = False):
-        self.config_file = config_file
-        self.config = FossyConfig.from_ini(config_file, server_to_use)
+    def __init__(self, config_file: Optional[str], server_to_use: str = "test", verify: bool = False, config_override: Optional[FossyConfig] = None):
+        if config_override:
+            self.config = config_override
+            self.config_file = "env_config"
+        else:
+            self.config_file = config_file
+            self.config = FossyConfig.from_ini(config_file, server_to_use)
+        
         self.config.verify = verify
         self.url = self.config.url
         if not self.url.endswith("/"):
@@ -31,6 +36,12 @@ class FossyClient:
         self.folders = FoldersResource(self)
 
         self._authenticate()
+
+    @classmethod
+    def from_env(cls, verify: bool = False) -> "FossyClient":
+        """Initialize the client using environment variables."""
+        config = FossyConfig.from_env()
+        return cls(config_file=None, config_override=config, verify=verify)
 
     def _authenticate(self):
         """Ensure the session has a valid bearer token"""
@@ -59,10 +70,11 @@ class FossyClient:
         response = self.session.post(f"{self.url}tokens", json=payload)
         if response.status_code == 200:
             token = response.json().get("Authorization")
-            # Update config and save to file
-            self.config.bearer_token = token
-            self.config.token_expire = str(datetime.date.today() + datetime.timedelta(days=self.config.token_valdity_days))
-            self.config.save_to_ini(self.config_file)
+            # Update config and save to file if we have a valid config file
+            if self.config_file and self.config_file != "env_config":
+                self.config.bearer_token = token
+                self.config.token_expire = str(datetime.date.today() + datetime.timedelta(days=self.config.token_valdity_days))
+                self.config.save_to_ini(self.config_file)
             return token
         
         raise FossyAuthError(f"Failed to obtain token: {response.text}")
