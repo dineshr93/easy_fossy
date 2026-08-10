@@ -15,7 +15,7 @@ class Resource:
         return ""
 
     def _request(self, method: str, path: str = "", params: Optional[dict] = None, data: Any = None, json: Any = None, **kwargs) -> Any:
-        url = f"{self.client.url}{self.base_path}/{path}".replace("//", "/")
+        url = f"{self.client.url}{self.base_path}/{path}"
         if url.endswith("/"):
             url = url[:-1]
 
