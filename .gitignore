@@ -1,5 +1,57 @@
-config.ini
-.ort/
-easy_fossy/__pycache__/
+# --- Poetry / Python project ---
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env/
+.env.*
+*.venv/
+
+# Build artifacts (kept tracked in this repo: dist/ wheels are committed)
+build/
+*.egg-info/
+*.egg
+*.whl
+*.tar.gz
+.eggs/
+
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyd
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.cache/
+*.cache
+
+# Packaging / distribution helpers
 .pypirc
-.venv
+
+# Test artifacts
+.pytest_cache/
+
+# ORT / compliance scanner output
+.ort/
+
+# --- Config ---
+# Config directory (credentials/instance configs)
+config/
+
+# Local credentials
+config.ini
+*.ini.local
+
+# Editor / OS cruft
+.DS_Store
+*.swp
+.idea/
+.vscode/

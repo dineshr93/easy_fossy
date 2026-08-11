@@ -164,6 +164,6 @@ For subagents, issue a **scoped, expiring REST token** instead of sharing the ad
 
 ## Verification
 
-- For a library call: `poetry run python -c "from easy_fossy import FossyClient; c=FossyClient.from_env(verify=False); print(len(c.folders.get_all()))"` returns a number ≥ 1.
+- For a library call: `poetry run python -c "from easy_fossy import FossyClient; c=FossyClient.from_env(verify=False); print(len(c.folders.get_all()))"` returns a number ≥ 1. `poetry run` requires **poetry installed** (it resolves the project venv); if easy_fossy is importable in the active interpreter instead, drop the wrapper: `python -c "..."`.
 - For a raw REST call: `curl -s -H "Authorization: Bearer $TOKEN" $FOSSY_URL/folders` returns a JSON array.
 - After a DELETE, re-list to confirm the item is gone.
