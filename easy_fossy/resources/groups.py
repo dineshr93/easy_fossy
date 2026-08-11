@@ -20,3 +20,25 @@ class GroupsResource(Resource):
         """Get group users and their roles"""
         params = {"group_id": str(group_id)}
         return self._request("GET", params=params)
+
+    def create(self, group_name: str, group_desc: str = None):
+        """Create a new user group"""
+        payload = {"group_name": group_name, "group_desc": group_desc}
+        return self._request("POST", json=payload)
+
+    def add_member(self, group_id: int, user_id: int):
+        """Add member to group"""
+        return self._request("POST", path=f"/{group_id}/user/{user_id}")
+
+    def delete_member(self, group_id: int, user_id: int):
+        """Remove member from group"""
+        return self._request("DELETE", path=f"/{group_id}/user/{user_id}")
+
+    def update_permission(self, group_id: int, user_id: int, permission: int):
+        """Update group permission for user"""
+        payload = {"permission": permission}
+        return self._request("PUT", path=f"/{group_id}/user/{user_id}", json=payload)
+
+    def get_deletable(self):
+        """Get deletable groups"""
+        return self._request("GET", path="/deletable")

@@ -30,6 +30,18 @@ class UploadsResource(Resource):
             return Upload(**response.json())
         return None
 
+    def upload_by_url(self, url: str, folder_id: int) -> Optional[Upload]:
+        """Upload a file from a URL"""
+        payload = {"url": url, "folder_id": folder_id}
+        data = self._request("POST", path="/", json=payload)
+        return Upload(**data) if data else None
+
+    def upload_by_giturl(self, giturl: str, folder_id: int) -> Optional[Upload]:
+        """Upload a package from a Git URL"""
+        payload = {"giturl": giturl, "folder_id": folder_id}
+        data = self._request("POST", path="/", json=payload)
+        return Upload(**data) if data else None
+
     def get_upload_by_id(self, upload_id: int) -> Optional[Upload]:
         """Get upload details by ID"""
         data = self._request("GET", path=f"/{upload_id}")
