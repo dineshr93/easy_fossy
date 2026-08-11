@@ -18,13 +18,16 @@ class GroupsResource(Resource):
 
     def get_users_with_roles(self, group_id: int):
         """Get group users and their roles"""
-        params = {"group_id": str(group_id)}
-        return self._request("GET", params=params)
+        return self._request("GET", path=f"/{group_id}/members")
 
     def create(self, group_name: str, group_desc: str = None):
-        """Create a new user group"""
-        payload = {"group_name": group_name, "group_desc": group_desc}
-        return self._request("POST", json=payload)
+        """Create a new user group.
+        FOSSology contract: POST /groups with ``name`` as a header.
+        """
+        headers = {"name": group_name}
+        if group_desc:
+            headers["description"] = group_desc
+        return self._request("POST", headers=headers)
 
     def add_member(self, group_id: int, user_id: int):
         """Add member to group"""

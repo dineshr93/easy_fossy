@@ -5,7 +5,7 @@ from ..models import License, LicenseCount
 class LicensesResource(Resource):
     @property
     def base_path(self) -> str:
-        return "licenses"
+        return "license"
 
     def get_all(self, is_active: str = "true", license_kind: str = "main", page: int = 1, limit: int = 100) -> List[License]:
         """List all licenses based on criteria"""
@@ -24,46 +24,75 @@ class LicensesResource(Resource):
         return License(**data) if data else None
 
     def add(self, unique_short_name: str, new_full_name: str, new_license_text: str, new_url: str, new_risk: int, isCandidate: bool = True):
-        """Add a new license"""
+        """Add a new license.
+        FOSSology contract: POST /license with shortName/fullName/text/url/risk.
+        """
         payload = {
-            "unique_short_name": unique_short_name,
-            "new_full_name": new_full_name,
-            "new_license_text": new_license_text,
-            "new_url": new_url,
-            "new_risk": new_risk,
-            "isCandidate": isCandidate,
+            "shortName": unique_short_name,
+            "fullName": new_full_name,
+            "text": new_license_text,
+            "url": new_url,
+            "risk": new_risk,
+            "mergeRequest": not isCandidate,
         }
         return self._request("POST", json=payload)
 
-    def get_histogram(self, upload_id: int) -> List[LicenseCount]:
-        """Get license histogram for an upload"""
-        params = {"upload": str(upload_id)}
-        data = self._request("GET", path="/histogram", params=params)
+    def get_histogram(self, upload_id: int, agent_id: Optional[int] = None) -> List[LicenseCount]:
+        """Get license histogram for an upload.
+        FOSSology contract: GET /uploads/{id}/licenses/histogram
+        """
+        params = {}
+        if agent_id is not None:
+            params["agentId"] = str(agent_id)
+        data = self._request("GET", path=f"/uploads/{upload_id}/licenses/histogram", params=params, absolute_path=True)
         return [LicenseCount(**lc) for lc in data] if isinstance(data, list) else []
 
-    def import_csv(self, file_path: str):
-        """Import licenses from CSV"""
-        # CSV import usually requires multipart
+    def import_csv(self, file_path: str, delimiter: str = ",", enclosure: str = '"'):
+        """Import licenses from CSV.
+        FOSSology contract: POST /license/import-csv (multipart, field ``file_input``).
+        """
         import requests
         from requests_toolbelt.multipart.encoder import MultipartEncoder
-        
-        fields = {"file": (None, open(file_path, "rb"), None)}
+
+        fields = {
+            "file_input": (file_path.split("/")[-1], open(file_path, "rb"), None),
+            "delimiter": delimiter,
+            "enclosure": enclosure,
+        }
         m = MultipartEncoder(fields=fields)
-        
+
         response = self.session.post(
             f"{self.client.url}{self.base_path}/import-csv",
             data=m,
-            headers={"Content-Type": m.content_type}
+            headers={"Content-Type": m.content_type},
         )
-        return response.json() if response.status_code == 200 else None
+        return response.json() if response.status_code in (200, 201) else None
 
     def export_csv(self):
-        """Export licenses to CSV"""
-        return self._request("GET", path="/export-csv")
+        """Export licenses to CSV.
+        FOSSology contract: GET /license/export-csv returns text/csv (not JSON).
+        """
+        response = self.session.get(f"{self.client.url}{self.base_path}/export-csv")
+        if response.status_code in (200, 201):
+            return response.text
+        return None
 
-    def import_json(self, payload: dict):
-        """Import licenses from JSON"""
-        return self._request("POST", path="/import-json", json=payload)
+    def import_json(self, file_path: str):
+        """Import licenses from a JSON file.
+        FOSSology contract: POST /license/import-json (multipart, field ``fileInput``).
+        """
+        import requests
+        from requests_toolbelt.multipart.encoder import MultipartEncoder
+
+        fields = {"fileInput": (file_path.split("/")[-1], open(file_path, "rb"), None)}
+        m = MultipartEncoder(fields=fields)
+
+        response = self.session.post(
+            f"{self.client.url}{self.base_path}/import-json",
+            data=m,
+            headers={"Content-Type": m.content_type},
+        )
+        return response.json() if response.status_code in (200, 201) else None
 
     def export_json(self):
         """Export licenses to JSON"""
@@ -98,13 +127,19 @@ class LicensesResource(Resource):
         """Mutate standard comments"""
         return self._request("PUT", path="/stdcomments", json=payload)
 
-    def verify(self, short_name: str):
-        """Verify license"""
-        return self._request("PUT", path=f"/verify/{short_name}")
+    def verify(self, short_name: str, parent_shortname: Optional[str] = None):
+        """Verify a license as new or variant.
+        FOSSology contract: PUT /license/verify/{shortname} with body parentShortname.
+        """
+        payload = {"parentShortname": parent_shortname or short_name}
+        return self._request("PUT", path=f"/verify/{short_name}", json=payload)
 
-    def merge(self, short_name: str):
-        """Merge license"""
-        return self._request("PUT", path=f"/merge/{short_name}")
+    def merge(self, short_name: str, parent_shortname: Optional[str] = None):
+        """Merge a license into a parent.
+        FOSSology contract: PUT /license/merge/{shortname} with body parentShortname.
+        """
+        payload = {"parentShortname": parent_shortname or short_name}
+        return self._request("PUT", path=f"/merge/{short_name}", json=payload)
 
     def suggest(self, payload: dict):
         """Get suggested license"""

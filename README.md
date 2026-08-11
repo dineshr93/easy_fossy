@@ -60,6 +60,52 @@ pip install .
 
 ---
 
+## Running the Test Suite
+
+The test suite (`tests/`) exercises **every public API function** against a **live FOSSology instance**. It is driven entirely by environment variables — the same ones the client reads — and is skipped (not failed) in CI when those variables are absent.
+
+### 1. Set the environment variables
+
+```bash
+export FOSSY_URL="http://fossology.com:port/repo/api/v1/"
+export FOSSY_BEARER_TOKEN="Bearer YOUR_TOKEN_HERE"
+export FOSSY_TOKEN_EXPIRE="2026-09-09"
+export FOSSY_ACCESS="write"
+export FOSSY_VERIFY="false"
+```
+
+Required: `FOSSY_URL`, `FOSSY_BEARER_TOKEN`, `FOSSY_TOKEN_EXPIRE`. Optional: `FOSSY_ACCESS`, `FOSSY_VERIFY`. If the required ones are missing, the suite is skipped rather than failing, so it is safe to run in CI where a live instance may not exist.
+
+### 2. Install dependencies
+
+```bash
+poetry install
+```
+
+### 3. Run the suite
+
+```bash
+poetry run pytest
+```
+
+Run a single test file:
+
+```bash
+poetry run pytest tests/test_uploads.py
+```
+
+Run a single test by name:
+
+```bash
+poetry run pytest tests/test_uploads.py -k "trigger"
+```
+
+> **Note:** Prefer `poetry run pytest` over `make test`. The `make test` target uninstalls/reinstalls the package via `pip3` against the system Python, which fails with a PEP 668 "externally-managed-environment" error on most modern distros.
+
+> **Note:** The suite creates and cleans up temporary folders and uploads on the live instance. If a test fails mid-way, its teardown may not run — a failed upload-dependent test (e.g. `test_get_all_uploads`) can leave `suite_folder_*` folders behind under the root. Run the suite to completion; if you see leftover `suite_folder_*` folders, they are test artifacts and safe to delete.
+
+---
+
 ## Quick Start
 
 You can configure the client in two ways: using a configuration file or environment variables.
@@ -122,7 +168,7 @@ client = FossyClient.from_env(verify=False)
 
 ## API Coverage
 
-`easy_fossy` now provides **184 methods** covering **148 endpoints** from the FOSSology REST API OpenAPI specification (~100% coverage). 
+`easy_fossy` provides **61 public API functions** across 6 resource modules, covering the core FOSSology REST API operations (uploads, folders, groups, jobs, licenses, users).
 
 ### Modular Architecture
 The client is organized into **Resource** modules for better discoverability. You access API methods through these resource objects:
@@ -215,14 +261,10 @@ The client is organized into **Resource** modules for better discoverability. Yo
 upload = client.uploads.upload_file(file_path='package.zip', folder_id=1)
 
 # Upload from Git URL
-client.uploads.get_upload_id_by_giturl_package_upload(
-    git_url='https://github.com/user/repo.git',
-    branch_name='main',
-    folder_id=1
-)
+client.uploads.upload_by_giturl(giturl='https://github.com/user/repo.git', folder_id=1, branch='main')
 
 # Trigger full analysis
-client.jobs.trigger_analysis_for_upload_id(upload_id=4, folder_id=1)
+client.uploads.trigger_analysis_for_upload_id(upload_id=upload.id, folder_id=1)
 ```
 
 #### Folders
@@ -237,10 +279,10 @@ client.folders.create(parent_folder_id=1, folder_name='new-folder')
 #### Licenses
 ```python
 # Search licenses
-licenses = client.licenses.get_all_license_based_on(is_active='true')
+licenses = client.licenses.get_all(is_active='true')
 
 # Get license by short name
-license_info = client.licenses.get_license_by_short_name(short_name='MIT')
+license_info = client.licenses.get_by_short_name(short_name='MIT')
 ```
 
 *(Note: Backward compatibility methods are still available directly on the `client` object for common operations.)*

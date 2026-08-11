@@ -329,17 +329,18 @@ class LicenseCount(BaseModel):
 
 
 class License(BaseModel):
+    id: Optional[int] = Field(None, description="Id key")
     shortName: str = Field(..., description="Short name of the license", example="GPL-2.0")
     fullName: str = Field(..., description="Full name of the license", example="GNU General Public License 2.0")
     text: str = Field(..., description="Full text of the license")
     url: Optional[str] = Field(None, description="URL to the license text")
     risk: Optional[int] = Field(None, description="Risk level of the license")
     isCandidate: Optional[bool] = Field(None, description="Is this a candidate license?")
-    sources: List[Source]
-    comment: str
-    acknowledgement: str
-    isMainLicense: bool
-    isRemoved: bool
+    sources: Optional[List[Source]] = Field(None, description="Sources of the license")
+    comment: Optional[str] = Field(None, description="Comment on the license")
+    acknowledgement: Optional[str] = Field(None, description="Acknowledgement")
+    isMainLicense: Optional[bool] = Field(None, description="Is main license")
+    isRemoved: Optional[bool] = Field(None, description="Is removed")
 
 
 class Group(BaseModel):

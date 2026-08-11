@@ -17,24 +17,35 @@ class FoldersResource(Resource):
         data = self._request("GET", path=f"/{folder_id}")
         return Folder(**data) if data else None
 
-    def create(self, parent_folder_id: int, folder_name: str):
-        """Create a folder under parent"""
-        payload = {"parent_folder_id": parent_folder_id, "folder_name": folder_name}
-        return self._request("POST", json=payload)
+    def create(self, parent_folder_id: int, folder_name: str, folder_description: Optional[str] = None):
+        """Create a folder under parent.
+        FOSSology passes parentFolder/folderName/folderDescription as custom headers.
+        """
+        headers = {
+            "parentFolder": str(parent_folder_id),
+            "folderName": folder_name,
+        }
+        if folder_description:
+            headers["folderDescription"] = folder_description
+        return self._request("POST", headers=headers)
 
     def delete(self, folder_id: int):
         """Delete a folder by ID"""
         return self._request("DELETE", path=f"/{folder_id}")
 
     def update(self, folder_id: int, folder_name: str, folder_desc: str):
-        """Update folder name or description"""
-        payload = {"folder_name": folder_name, "folder_desc": folder_desc}
-        return self._request("PATCH", path=f"/{folder_id}", json=payload)
+        """Update folder name or description.
+        FOSSology contract: PATCH /folders/{id} with name/description headers.
+        """
+        headers = {"name": folder_name, "description": folder_desc}
+        return self._request("PATCH", path=f"/{folder_id}", headers=headers)
 
     def move(self, folder_id: int, target_folder_id: int):
-        """Move folder to target parent"""
-        payload = {"target_folder_id": target_folder_id}
-        return self._request("PUT", path=f"/{folder_id}", json=payload)
+        """Move folder to target parent.
+        FOSSology contract: PUT /folders/{id} with parent + action headers.
+        """
+        headers = {"parent": str(target_folder_id), "action": "move"}
+        return self._request("PUT", path=f"/{folder_id}", headers=headers)
 
     def unlink_content(self, content_id: int):
         """Unlink content from folder"""

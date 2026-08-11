@@ -21,6 +21,12 @@ typing-extensions = "^4.7.0"
 urllib3 = "^1.26.7"
 
 [tool.poetry.group.dev.dependencies]
+pytest = "^9.0"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+pythonpath = ["."]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

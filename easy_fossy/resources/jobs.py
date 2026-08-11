@@ -28,9 +28,8 @@ class JobsResource(Resource):
         return Job(**data) if data else None
 
     def delete(self, job_id: int, queue_id: int = 1):
-        """Delete a job"""
-        params = {"queue_id": str(queue_id)}
-        return self._request("DELETE", path=f"/{job_id}", params=params)
+        """Delete a job. FOSSology contract: DELETE /jobs/{id}/{queue}"""
+        return self._request("DELETE", path=f"/{job_id}/{queue_id}")
 
     def get_all_admin(self) -> List[Job]:
         """Get all jobs for admin"""

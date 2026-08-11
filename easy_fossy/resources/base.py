@@ -14,8 +14,12 @@ class Resource:
         """Override this in subclasses to define the resource endpoint"""
         return ""
 
-    def _request(self, method: str, path: str = "", params: Optional[dict] = None, data: Any = None, json: Any = None, **kwargs) -> Any:
-        url = f"{self.client.url}{self.base_path}/{path}"
+    def _request(self, method: str, path: str = "", params: Optional[dict] = None, data: Any = None, json: Any = None, absolute_path: bool = False, **kwargs) -> Any:
+        # absolute_path=True means path is relative to the API root (not the resource base_path)
+        if absolute_path:
+            url = f"{self.client.url.rstrip('/')}/{path.lstrip('/')}"
+        else:
+            url = f"{self.client.url.rstrip('/')}/{self.base_path}/{path.lstrip('/')}"
         if url.endswith("/"):
             url = url[:-1]
 
