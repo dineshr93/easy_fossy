@@ -134,6 +134,79 @@ The client is organized into **Resource** modules for better discoverability. Yo
 - `client.users` - User management
 - `client.groups` - Group management
 
+#### Available Functions
+
+**Uploads (`client.uploads`)**
+- `upload_file(file_path, folder_id)`: Upload a local file.
+- `upload_by_url(url, folder_id)`: Upload a file from a URL.
+- `upload_by_giturl(giturl, folder_id)`: Upload a package from a Git URL.
+- `get_upload_by_id(upload_id)`: Get upload details by ID.
+- `trigger_analysis_for_upload_id(upload_id, folder_id)`: Trigger full analysis.
+- `delete_uploads_by_upload_id(upload_id)`: Delete an upload.
+- `get_upload_tree_id_by_upload_id(upload_id)`: Get the top-level item ID for an upload.
+- `get_copyrights_by_upload_id_uploadtree_id(upload_id, upload_tree_id)`: Get copyrights for a specific item.
+
+**Folders (`client.folders`)**
+- `get_all()`: List all folders.
+- `get_by_id(folder_id)`: Get folder info by ID.
+- `create(parent_folder_id, folder_name)`: Create a folder under a parent.
+- `delete(folder_id)`: Delete a folder.
+- `update(folder_id, folder_name, folder_desc)`: Update folder name or description.
+- `move(folder_id, target_folder_id)`: Move folder to a target parent.
+- `unlink_content(content_id)`: Unlink content from a folder.
+- `get_contents(folder_id)`: Get all folder contents.
+- `get_unlinkable_contents(folder_id)`: Get unlinkable contents.
+
+**Groups (`client.groups`)**
+- `get_all()`: List all groups.
+- `delete(group_id)`: Delete a group by ID.
+- `get_users_with_roles(group_id)`: Get group users and their roles.
+- `create(group_name, group_desc=None)`: Create a new user group.
+- `add_member(group_id, user_id)`: Add a member to a group.
+- `delete_member(group_id, user_id)`: Remove a member from a group.
+- `update_permission(group_id, user_id, permission)`: Update group permission for a user.
+- `get_deletable()`: Get list of deletable groups.
+
+**Jobs (`client.jobs`)**
+- `get_all(upload_id=None, status=None, limit=1000, page=1)`: List jobs (filterable by upload/status).
+- `get_by_id(job_id)`: Get job info by ID.
+- `delete(job_id, queue_id=1)`: Delete a job.
+- `get_all_admin()`: Get all jobs (admin view).
+- `get_scheduler_options(operation_name)`: Get scheduler options by operation.
+- `handle_scheduler_run(payload)`: Handle scheduler run.
+- `get_statistics()`: Get job statistics.
+- `get_all_server_jobs()`: Get all server jobs.
+
+**Licenses (`client.licenses`)**
+- `get_all(is_active="true", license_kind="main", page=1, limit=100)`: List licenses based on criteria.
+- `get_by_short_name(short_name)`: Get license by short name.
+- `add(unique_short_name, new_full_name, new_license_text, new_url, new_risk, isCandidate=True)`: Add a new license.
+- `get_histogram(upload_id)`: Get license histogram for an upload.
+- `import_csv(file_path)`: Import licenses from CSV.
+- `export_csv()`: Export licenses to CSV.
+- `import_json(payload)`: Import licenses from JSON.
+- `export_json()`: Export licenses to JSON.
+- `update(short_name, payload)`: Update license info.
+- `get_admin_candidates()`: Get admin license candidates.
+- `delete_candidate(candidate_id)`: Delete license candidate by ID.
+- `get_admin_acknowledgements()`: Get admin acknowledgements.
+- `mutate_acknowledgement(payload)`: Mutate admin acknowledgement.
+- `get_standard_comments()`: Get all standard license comments.
+- `mutate_std_comments(payload)`: Mutate standard comments.
+- `verify(short_name)`: Verify a license.
+- `merge(short_name)`: Merge a license.
+- `suggest(payload)`: Get suggested license.
+
+**Users (`client.users`)**
+- `get_all(limit=1000, page=1)`: List all users.
+- `get_by_id(user_id)`: Get user details by ID.
+- `create(payload)`: Create a new user.
+- `update(user_id, payload)`: Modify user by ID.
+- `delete(user_id)`: Delete user by ID.
+- `get_self()`: Get current user info.
+- `create_token(payload)`: Create a REST API token.
+- `get_tokens(token_type)`: Get tokens by type.
+
 ### Usage Examples
 
 #### Uploads
