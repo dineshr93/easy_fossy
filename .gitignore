@@ -18,6 +18,7 @@ build/
 
 # Python bytecode / caches
 __pycache__/
+easy_fossy/resources/__pycache__/
 *.py[cod]
 *$py.class
 *.pyc
@@ -35,6 +36,8 @@ htmlcov/
 
 # Packaging / distribution helpers
 .pypirc
+
+dist/*
 
 # Test artifacts
 .pytest_cache/

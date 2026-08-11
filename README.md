@@ -132,7 +132,7 @@ poetry run pytest tests/test_uploads.py -k "trigger"
 
 > **Note:** Prefer `poetry run pytest` over `make test`. The `make test` target uninstalls/reinstalls the package via `pip3` against the system Python, which fails with a PEP 668 "externally-managed-environment" error on most modern distros.
 
-> **Note:** The suite creates and cleans up temporary folders and uploads on the live instance. If a test fails mid-way, its teardown may not run — a failed upload-dependent test (e.g. `test_get_all_uploads`) can leave `suite_folder_*` folders behind under the root. Run the suite to completion; if you see leftover `suite_folder_*` folders, they are test artifacts and safe to delete.
+> **Note:** The suite creates and cleans up temporary folders and uploads on the live instance. `temp_folder` removes its folder via per-test teardown, and an autouse session fixture sweeps any leftover `suite_*` folders at the end of the run — so even if a test fails mid-way, orphans are cleaned up automatically. If you ever see leftover `suite_folder_*` folders anyway (e.g. the instance was unreachable at teardown), they are test artifacts and safe to delete.
 
 ---
 

@@ -60,6 +60,30 @@ def group_ids(client):
     return [g.id for g in groups]
 
 
+@pytest.fixture(scope="session", autouse=True)
+def cleanup_suite_folders(client):
+    """Best-effort, session-end sweep: delete any leftover ``suite_*`` folders.
+
+    ``temp_folder`` normally removes its own folder via teardown, but if a test
+    fails mid-way its teardown may not run, orphaning a ``suite_folder_*`` entry
+    under the root. This autouse fixture runs after the whole session and
+    deletes every folder whose name starts with ``suite_`` regardless of how
+    the individual tests ended. It never raises so it cannot mask failures.
+    """
+    yield
+    try:
+        for f in client.folders.get_all():
+            if f.name.startswith("suite_"):
+                try:
+                    client.folders.delete(f.id)
+                except Exception:
+                    # Orphaned folder may be mid-delete or already gone.
+                    pass
+    except Exception:
+        # If the instance is unreachable at teardown, there is nothing to sweep.
+        pass
+
+
 @pytest.fixture
 def temp_folder(client):
     """Create a uniquely-named folder under the root and remove it afterwards."""
