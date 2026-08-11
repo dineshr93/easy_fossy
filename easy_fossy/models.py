@@ -536,6 +536,11 @@ class ReportFormat(Enum):
     spdx2tv = "spdx2tv"
     readmeoss = "readmeoss"
     unifiedreport = "unifiedreport"
+    clixml = "clixml"
+    cyclonedx = "cyclonedx"
+    spdx3json = "spdx3json"
+    spdx3rdf = "spdx3rdf"
+    spdx3jsonld = "spdx3jsonld"
 
 
 class ReportFormat1(Enum):

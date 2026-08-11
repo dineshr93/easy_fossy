@@ -8,6 +8,7 @@ from .resources.jobs import JobsResource
 from .resources.licenses import LicensesResource
 from .resources.groups import GroupsResource
 from .resources.folders import FoldersResource
+from .resources.reports import ReportsResource
 from .exceptions import FossyAuthError
 
 class FossyClient:
@@ -34,6 +35,7 @@ class FossyClient:
         self.licenses = LicensesResource(self)
         self.groups = GroupsResource(self)
         self.folders = FoldersResource(self)
+        self.reports = ReportsResource(self)
 
         self._authenticate()
 
@@ -98,3 +100,11 @@ class FossyClient:
 
     def get_upload_by_id(self, upload_id: int):
         return self.uploads.get_upload_by_id(upload_id)
+
+    def generate_and_get_desired_report_for_uploadid(
+        self, upload_id: int, report_format, save_to: Optional[str] = None
+    ):
+        """Generate and download a report for ``upload_id`` (legacy convenience)."""
+        return self.reports.generate_and_get_desired_report_for_uploadid(
+            upload_id, report_format, save_to=save_to
+        )
