@@ -8,12 +8,17 @@ skipped rather than failing, so it can run in CI where a live instance may not e
 """
 
 import os
+import time
 
 import pytest
 
 from easy_fossy.client import FossyClient
 
 REQUIRED_ENV = ["FOSSY_URL", "FOSSY_BEARER_TOKEN", "FOSSY_TOKEN_EXPIRE"]
+
+# Apache POI sources jar — a small, stable, license-bearing archive used to seed
+# an upload when the instance is empty, so upload-dependent tests always have data.
+UPLOAD_JAR_URL = "https://repo1.maven.org/maven2/org/apache/poi/poi/5.5.1/poi-5.5.1-sources.jar"
 
 
 def _env_available() -> bool:
@@ -33,10 +38,62 @@ def client():
 
 
 @pytest.fixture(scope="session")
-def upload_ids(client):
-    """Discover the current upload ids present on the instance."""
+def suite_upload_folder(client):
+    """A session-scoped temp folder used to host the seeded upload.
+
+    ``temp_folder`` is function-scoped, so a fresh-instance seed needs its own
+    session-scoped folder that lives for the whole run and is removed after.
+    """
+    name = f"suite_folder_{os.getpid()}_{time.time_ns() % 10**6}"
+    result = client.folders.create(parent_folder_id=1, folder_name=name)
+    folder_id = result.get("message") if isinstance(result, dict) else result
+    assert folder_id is not None, f"Could not create suite upload folder: {result}"
+    folder_id = int(folder_id)
+    yield folder_id
+    # Best-effort cleanup (the autouse cleanup_suite_folders sweep is a backstop)
+    try:
+        client.folders.delete(folder_id)
+    except Exception:
+        pass
+
+
+@pytest.fixture(scope="session")
+def upload_ids(client, suite_upload_folder):
+    """Discover the current upload ids present on the instance.
+
+    On a fresh/empty instance (no uploads) this seeds one upload from the Apache
+    POI sources jar so every upload-dependent test has real data. The seeded
+    upload (and its folder) are deleted after the session finishes.
+    """
     uploads = client.uploads.get_all_uploads()
-    return [u.id for u in uploads]
+    ids = [u.id for u in uploads]
+    seeded = None
+    if not ids:
+        import os as _os
+        import tempfile
+        import requests as _requests
+
+        tmp_path = tempfile.NamedTemporaryFile(suffix=".jar", delete=False).name
+        try:
+            resp = _requests.get(UPLOAD_JAR_URL, timeout=60)
+            resp.raise_for_status()
+            with open(tmp_path, "wb") as f:
+                f.write(resp.content)
+            upload = client.uploads.upload_file(
+                file_path=tmp_path, folder_id=suite_upload_folder
+            )
+            assert upload is not None, "Could not seed upload from Apache POI sources jar"
+            seeded = upload.id
+            ids = [upload.id]
+        finally:
+            _os.unlink(tmp_path)
+    yield ids
+    # Clean up the upload we seeded once all tests have finished.
+    if seeded is not None:
+        try:
+            client.uploads.delete_uploads_by_upload_id(seeded)
+        except Exception:
+            pass
 
 
 @pytest.fixture(scope="session")
