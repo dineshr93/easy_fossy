@@ -1,6 +1,6 @@
 ---
 name: fossy
-description: Call the FOSSology REST API via easy_fossy's 60 functions.
+description: Call the FOSSology REST API via easy_fossy's 63 functions.
 category: api-clients
 version: 1.0.0
 author: Dinesh (dineshr93), Hermes Agent
@@ -14,7 +14,7 @@ metadata:
 
 # fossy — FOSSology REST API Skill
 
-Self-contained reference for driving the **FOSSology** license-analysis REST API through the `easy_fossy` Python client. It maps all **60 public resource functions** (plus the client constructors and backward-compat wrappers) to their exact HTTP calls, and documents secure token management for AI subagents. It works even on a machine where `easy_fossy` is **not installed** — you can replicate any call with `curl` or `requests`.
+Self-contained reference for driving the **FOSSology** license-analysis REST API through the `easy_fossy` Python client. It maps all **63 public resource functions** (plus the client constructors and backward-compat wrappers) to their exact HTTP calls, and documents secure token management for AI subagents. It works even on a machine where `easy_fossy` is **not installed** — you can replicate any call with `curl` or `requests`.
 
 ## When to Use
 
@@ -58,7 +58,7 @@ client = easy_fossy('config.ini', 'test', verify=False)
 # get_all_users, get_user_by_id, get_all_jobs, get_job_info_by_id
 ```
 
-The six resource objects: `client.uploads`, `client.folders`, `client.groups`, `client.jobs`, `client.licenses`, `client.users`.
+The seven resource objects: `client.uploads`, `client.folders`, `client.groups`, `client.jobs`, `client.licenses`, `client.users`, `client.reports`.
 
 ## Token Management (AI subagents)
 
@@ -68,7 +68,7 @@ For subagents, issue a **scoped, expiring REST token** instead of sharing the ad
 2. Export it to the subagent as `FOSSY_BEARER_TOKEN="Bearer <token>"` plus `FOSSY_TOKEN_EXPIRE`.
 3. On job end, delete the token with `client.users.delete(...)` or let it expire. Never write tokens to a committed file.
 
-## Quick Reference (60 resource functions)
+## Quick Reference (63 resource functions)
 
 **uploads** — POST /uploads multipart `fileInput`, headers `folderId` + `uploadType=file` → `upload_file(file_path, folder_id)`; returns `Info{code,message=upload_id}`.
 - `upload_by_url(url, folder_id, scan_options=None)` → POST /uploads, headers `folderId`+`uploadType=url`, JSON `{"location":{"url":...},"scanOptions":{analysis:{...}}}`
@@ -141,6 +141,14 @@ For subagents, issue a **scoped, expiring REST token** instead of sharing the ad
 - `create_token(payload)` → POST /users/tokens  (body: token_name/token_scope/token_expire)
 - `get_tokens(token_type)` → GET /users/tokens/{token_type}  (active|expired)
 
+**reports** (base_path `report`, singular)
+
+- `get_reports_by_upload(upload_id, report_format, group_name=None)` → GET /report, headers uploadId/reportFormat/groupName; returns the **report id** parsed from the Info `message` (a download URL ending in `/report/{id}`)
+- `download_report(report_id, group_name=None, accept="text/plain", timeout=20.0, poll_interval=0.2)` → GET /report/{id}, raw non-JSON body (bytes). Polls through transient 503/Retry-After until 200; raises FossyAPIError on other statuses or timeout
+- `generate_and_get_desired_report_for_uploadid(upload_id, report_format, group_name=None, save_to=None)` → convenience wrapper: schedules via `get_reports_by_upload` then downloads via `download_report`; writes body to `save_to` if given, returns bytes
+
+Client-level backward-compat wrapper: `generate_and_get_desired_report_for_uploadid(upload_id, report_format, save_to=None)`. `report_format` is a `ReportFormat` enum member: dep5, spdx2, spdx2tv, readmeoss, unifiedreport, clixml, cyclonedx, spdx3json, spdx3rdf, spdx3jsonld.
+
 ## Procedure (raw REST when the library is absent)
 
 1. **Auth** — POST `{url}tokens` JSON `{username,password,token_name,token_scope,token_expire}` → returns `Authorization` header value to send as `Bearer ...`.
@@ -158,6 +166,7 @@ For subagents, issue a **scoped, expiring REST token** instead of sharing the ad
 - `export_csv` returns raw text, not JSON; `export_json` returns JSON.
 - `import_json` and `import_csv` use multipart; field names differ (`file_input` vs `fileInput`) — keep them distinct.
 - `get_histogram`, `trigger_analysis_for_upload_id`, and copyright paths are relative to the API root, not their resource base_path.
+- Reports: GET /report returns an Info payload (report id in `message`), not the report body; GET /report/{id} is non-JSON and returns 503/Retry-After while generating — poll, and treat non-200/503 as FossyAPIError.
 - Tests create `suite_folder_*`/`suite_*` artifacts; failed teardowns can leave them behind.
 - `usecases.py` references some not-yet-implemented methods (`schedule_agent`, `get_all_edited`, etc.) — do not trust it as a function reference; use the Quick Reference above.
 - `pip install easy-fossy` pulls from PyPI, which lags the repo (latest published 2.4.13 vs local 2.5.0). Install from the git repo to get current source.

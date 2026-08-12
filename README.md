@@ -54,7 +54,7 @@ pip install .
 
 ## Hermes Agent Skill (reusable)
 
-The repo ships a standalone Hermes skill at `skills/fossy/` — a self-contained reference for driving the FOSSology REST API through `easy_fossy`, covering all 60 resource functions plus secure token management for AI subagents. It works even where `easy_fossy` is not installed (you can replicate any call with `curl`/`requests`).
+The repo ships a standalone Hermes skill at `skills/fossy/` — a self-contained reference for driving the FOSSology REST API through `easy_fossy`, covering all 63 resource functions plus secure token management for AI subagents. It works even where `easy_fossy` is not installed (you can replicate any call with `curl`/`requests`).
 
 ### Install from this repo (Hermes CLI)
 
