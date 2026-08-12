@@ -5,9 +5,11 @@ import pytest
 from easy_fossy.exceptions import FossyAPIError
 
 
-def test_get_all_uploads(client):
+def test_get_all_uploads(client, upload_ids):
     uploads = client.uploads.get_all_uploads()
     assert isinstance(uploads, list)
+    # upload_ids seeds an upload when the instance is empty, so this holds on
+    # fresh instances too (same robustness as the other upload-dependent tests).
     assert len(uploads) > 0
     for u in uploads:
         assert u.id is not None
