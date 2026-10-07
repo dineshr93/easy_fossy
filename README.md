@@ -1,6 +1,6 @@
 # easy_fossy
 
-[![Snake fonts](https://see.fontimg.com/api/renderfont4/mLZ3a/eyJyIj...oxfQ/ZWFzeV9mb3NzeQ/terasong.png)](https://www.fontspace.com/category/snake) For Font credit Refer <1>
+
 
 Accessing the FOSSology REST API made easy (requires Python 3.10+).
 
