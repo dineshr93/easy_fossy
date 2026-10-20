@@ -54,7 +54,7 @@ pip install .
 
 ## Hermes Agent Skill (reusable)
 
-The repo ships a standalone Hermes skill at `skills/fossy/` — a self-contained reference for driving the FOSSology REST API through `easy_fossy`, covering all 78 resource functions plus secure token management for AI subagents. It works even where `easy_fossy` is not installed (you can replicate any call with `curl`/`requests`).
+The repo ships a standalone Hermes skill at `skills/fossy/` — a self-contained reference for driving the FOSSology REST API through `easy_fossy`, covering all 77 resource functions plus secure token management for AI subagents. It works even where `easy_fossy` is not installed (you can replicate any call with `curl`/`requests`).
 
 ### Install from this repo (Hermes CLI)
 
@@ -116,7 +116,7 @@ export FOSSY_ACCESS="write"
 export FOSSY_VERIFY="false"
 ```
 
-Required: `FOSSY_URL`, `FOSSY_BEARER_TOKEN`, `FOSSY_TOKEN_EXPIRE`. Optional: `FOSSY_ACCESS`, `FOSSY_VERIFY`. If the required ones are missing, the live tests skip rather than fail.
+Required: `FOSSY_URL`, `FOSSY_BEARER_TOKEN`, `FOSSY_TOKEN_EXPIRE`. Optional: `FOSSY_ACCESS`, `FOSSY_VERIFY`, `FOSSY_UNAME`, `FOSSY_PWD`, `FOSSY_GROUP_NAME`, `FOSSY_REPORTS_LOCATION`, `FOSSY_TOKEN_VALIDITY_DAYS` (legacy `FOSSY_TOKEN_VALDITY_DAYS`). If the required ones are missing, the live tests skip rather than fail.
 
 ```bash
 poetry run pytest -m live
@@ -184,6 +184,15 @@ export FOSSY_BEARER_TOKEN="Bearer YOUR_TOKEN_HERE"
 export FOSSY_TOKEN_EXPIRE="2026-09-09"
 export FOSSY_ACCESS="write"
 export FOSSY_VERIFY="false"
+
+# optional: username/password auth instead of a bearer token
+export FOSSY_UNAME="your_username"
+export FOSSY_PWD="your_password"
+
+# optional: defaults
+export FOSSY_GROUP_NAME="fossy"
+export FOSSY_REPORTS_LOCATION="reports/"
+export FOSSY_TOKEN_VALIDITY_DAYS="365"   # legacy FOSSY_TOKEN_VALDITY_DAYS still accepted
 ```
 
 **2. Kickstart**
@@ -199,7 +208,7 @@ client = FossyClient.from_env(verify=False)
 
 ## API Coverage
 
-`easy_fossy` provides **78 public API functions** across 6 resource modules, covering the core FOSSology REST API operations (uploads, folders, groups, jobs, licenses, users).
+`easy_fossy` provides **77 public API functions** across 7 resource modules, covering the core FOSSology REST API operations (uploads, folders, groups, jobs, licenses, reports, users).
 
 ### Modular Architecture
 The client is organized into **Resource** modules for better discoverability. You access API methods through these resource objects:
@@ -210,6 +219,7 @@ The client is organized into **Resource** modules for better discoverability. Yo
 - `client.licenses` - License management
 - `client.users` - User management
 - `client.groups` - Group management
+- `client.reports` - Report generation and download
 
 One `Transport` module (`easy_fossy/transport.py`) builds every URL, maps status codes onto the exception hierarchy, and fetches the bearer token lazily on the first request. Constructing a client performs no I/O; tests swap the transport's session for an in-memory stub.
 
@@ -289,6 +299,11 @@ One `Transport` module (`easy_fossy/transport.py`) builds every URL, maps status
 - `merge(short_name)`: Merge a license.
 - `suggest(payload)`: Get suggested license.
 
+**Reports (`client.reports`)**
+- `get_reports_by_upload(upload_id, report_format, group_name=None)`: Schedule a report, return its id.
+- `download_report(report_id, group_name=None, accept="text/plain", timeout=20.0, poll_interval=0.2)`: Poll until ready, return the raw bytes.
+- `generate_and_get_desired_report_for_uploadid(upload_id, report_format, group_name=None, save_to=None)`: Schedule + download, optionally writing the file.
+
 **Users (`client.users`)**
 - `get_all(limit=1000, page=1)`: List all users.
 - `get_by_id(user_id)`: Get user details by ID.
@@ -331,7 +346,7 @@ licenses = client.licenses.get_all(is_active='true')
 license_info = client.licenses.get_by_short_name(short_name='MIT')
 ```
 
-*(Note: Backward compatibility methods are still available directly on the `client` object for common operations.)*
+*(Note: Backward compatibility wrappers remain on the `client` object: `get_all_users`, `get_user_by_id`, `get_all_jobs`, `get_job_info_by_id`, `upload_file`, `get_upload_by_id`, `generate_and_get_desired_report_for_uploadid`.)*
 
 ---
 

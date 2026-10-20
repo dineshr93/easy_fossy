@@ -1,6 +1,6 @@
 ---
 name: fossy
-description: Call the FOSSology REST API via easy_fossy's 78 functions.
+description: Call the FOSSology REST API via easy_fossy's 77 functions.
 category: api-clients
 version: 1.0.0
 author: Dinesh (dineshr93), Hermes Agent
@@ -68,7 +68,7 @@ For subagents, issue a **scoped, expiring REST token** instead of sharing the ad
 2. Export it to the subagent as `FOSSY_BEARER_TOKEN="Bearer <token>"` plus `FOSSY_TOKEN_EXPIRE`.
 3. On job end, delete the token with `client.users.delete(...)` or let it expire. Never write tokens to a committed file.
 
-## Quick Reference (78 resource functions)
+## Quick Reference (77 resource functions)
 
 **uploads** — POST /uploads multipart `fileInput`, headers `folderId` + `uploadType=file` → `upload_file(file_path, folder_id)`; returns `Info{code,message=upload_id}`.
 - `upload_by_url(url, folder_id, scan_options=None)` → POST /uploads, headers `folderId`+`uploadType=url`, JSON `{"location":{"url":...},"scanOptions":{analysis:{...}}}`
