@@ -10,17 +10,16 @@ FOSSology contract:
                         200 with the report body (text or binary depending on
                         the requested format).
 
-The download endpoint returns a non-JSON body, so it bypasses the generic
-``_request`` helper (which calls ``.json()``) and uses the raw session with its
-own polling loop, mirroring ``UploadsResource.upload_file``.
+The download endpoint returns a non-JSON body, so it reads the raw response
+from the transport instead of the JSON-only ``_request`` helper.
 """
 
 import time
 from typing import Optional
 
 from .base import Resource
-from ..models import Info
 from ..exceptions import FossyAPIError
+from ..transport import check
 
 
 class ReportsResource(Resource):
@@ -34,7 +33,10 @@ class ReportsResource(Resource):
         msg = info.get("message") if isinstance(info, dict) else info
         if not msg:
             return None
-        return int(str(msg).rsplit("/", 1).pop())
+        try:
+            return int(str(msg).rsplit("/", 1).pop())
+        except ValueError:
+            raise FossyAPIError(f"Report response has no numeric id: {info}")
 
     def get_reports_by_upload(
         self,
@@ -76,10 +78,9 @@ class ReportsResource(Resource):
             "accept": accept,
             "groupName": group_name or self.config.group_name,
         }
-        url = f"{self.client.url.rstrip('/')}/{self.base_path}/{report_id}"
         deadline = time.time() + timeout
         while True:
-            response = self.session.get(url, headers=headers)
+            response = self._send("GET", f"/{report_id}", headers=headers)
             if response.status_code == 200:
                 return response.content
             if response.status_code == 503:
@@ -97,11 +98,7 @@ class ReportsResource(Resource):
             # Any other status is a domain error (e.g. 404 "no report scheduled
             # with given job id") — surface it as FossyAPIError like the rest of
             # the library.
-            raise FossyAPIError(
-                f"Failed to download report {report_id}: {response.text}",
-                status_code=response.status_code,
-                response_text=response.text,
-            )
+            check(response)
         raise FossyAPIError(
             f"Report {report_id} not ready before timeout "
             f"(last status {response.status_code})",

@@ -1,6 +1,6 @@
 ---
 name: fossy
-description: Call the FOSSology REST API via easy_fossy's 63 functions.
+description: Call the FOSSology REST API via easy_fossy's 78 functions.
 category: api-clients
 version: 1.0.0
 author: Dinesh (dineshr93), Hermes Agent
@@ -68,7 +68,7 @@ For subagents, issue a **scoped, expiring REST token** instead of sharing the ad
 2. Export it to the subagent as `FOSSY_BEARER_TOKEN="Bearer <token>"` plus `FOSSY_TOKEN_EXPIRE`.
 3. On job end, delete the token with `client.users.delete(...)` or let it expire. Never write tokens to a committed file.
 
-## Quick Reference (63 resource functions)
+## Quick Reference (78 resource functions)
 
 **uploads** — POST /uploads multipart `fileInput`, headers `folderId` + `uploadType=file` → `upload_file(file_path, folder_id)`; returns `Info{code,message=upload_id}`.
 - `upload_by_url(url, folder_id, scan_options=None)` → POST /uploads, headers `folderId`+`uploadType=url`, JSON `{"location":{"url":...},"scanOptions":{analysis:{...}}}`
@@ -79,6 +79,16 @@ For subagents, issue a **scoped, expiring REST token** instead of sharing the ad
 - `delete_uploads_by_upload_id(upload_id)` → DELETE /uploads/{id}
 - `get_upload_tree_id_by_upload_id(upload_id)` → GET /uploads/{id}/topitem
 - `get_copyrights_by_upload_id_uploadtree_id(upload_id, upload_tree_id)` → GET /uploads/{id}/item/{itemId}/copyrights?status=active
+- `get_copyrights(upload_id)` → GET /uploads/{id}/copyrights
+- `get_clearing_progress_info(upload_id)` → GET /uploads/{id}/clearing-progress
+- `get_clearing_history(upload_id, item_id)` → GET /uploads/{id}/item/{itemId}/clearing-history
+- `get_agents_by_upload_id(upload_id)` → GET /uploads/{id}/agents
+- `get_revisions_for_agents(upload_id)` → GET /uploads/{id}/agents/revision
+- `get_all_edited(upload_id)` → GET /uploads/{id}/licenses/edited
+- `get_all_scanned(upload_id)` → GET /uploads/{id}/licenses/scanned
+- `get_reuse_summary(upload_id)` → GET /uploads/{id}/licenses/reuse
+- `get_license_histogram(upload_id, agent_id=None)` → GET /uploads/{id}/licenses/histogram?agentId
+- `run_one_shot_nomos(file_path)` / `run_one_shot_monk(file_path)` / `run_one_shot_ceu(file_path)` → POST /uploads/oneshot/{nomos,monk,ceu} multipart `fileInput`
 
 **folders**
 - `get_all()` → GET /folders
@@ -110,12 +120,14 @@ For subagents, issue a **scoped, expiring REST token** instead of sharing the ad
 - `handle_scheduler_run(payload)` → POST /jobs/scheduler/operation/run
 - `get_statistics()` → GET /jobs/dashboard/statistics
 - `get_all_server_jobs()` → GET /jobs/dashboard
+- `schedule_analysis(upload_id, folder_id, analysis=None)` → POST /jobs, headers folderId+uploadId, JSON `{"analysis":{...}}`
+- `schedule_agent(upload_id, agents, folder_id=None)` → one POST /jobs per agent; folderId resolved from GET /uploads/{id} when omitted
 
 **licenses** (base_path `license`, singular)
 - `get_all(is_active="true", license_kind="main", page=1, limit=100)` → GET /license?is_active&license_kind&page&limit
 - `get_by_short_name(short_name)` → GET /license/{shortName}
 - `add(unique_short_name, new_full_name, new_license_text, new_url, new_risk, isCandidate=True)` → POST /license, JSON `{shortName,fullName,text,url,risk,mergeRequest}`
-- `get_histogram(upload_id, agent_id=None)` → GET /uploads/{id}/licenses/histogram?agentId (API root path)
+- `get_histogram(upload_id, agent_id=None)` → GET /uploads/{id}/licenses/histogram?agentId (delegates to `client.uploads.get_license_histogram`; endpoint owned by uploads)
 - `import_csv(file_path, delimiter=",", enclosure='"')` → POST /license/import-csv multipart file_input/delimiter/enclosure
 - `export_csv()` → GET /license/export-csv (returns text/csv, not JSON)
 - `import_json(file_path)` → POST /license/import-json multipart fileInput

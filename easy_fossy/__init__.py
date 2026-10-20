@@ -22,7 +22,6 @@ from .models import (
     LicensePostRequest,
     LicenseShortnameGetResponse,
     LicenseShortnamePatchRequest,
-    Public,
     ReportFormat1,
     ReportFormat2,
     ScanOptions,

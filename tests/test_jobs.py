@@ -1,9 +1,11 @@
 """Tests for the Jobs resource against the live FOSSology instance."""
-
 import pytest
+
 
 from easy_fossy.exceptions import FossyAPIError
 
+
+pytestmark = pytest.mark.live
 
 def test_get_all_jobs(client, job_ids):
     jobs = client.jobs.get_all()

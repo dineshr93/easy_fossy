@@ -8,7 +8,16 @@ from datetime import date
 from enum import Enum
 from typing import List, Optional, Union, Any
 
-from pydantic import BaseModel, Field, SecretStr, constr, RootModel,field_validator
+from pydantic import (
+    AliasChoices,
+    BaseModel,
+    ConfigDict,
+    Field,
+    SecretStr,
+    constr,
+    RootModel,
+    field_validator,
+)
 
 
 class Version(Enum):
@@ -41,8 +50,16 @@ class ClearingStatus(Enum):
 
 
 class UploadSummary(BaseModel):
+    # One canonical spelling per concept; the server's variants are absorbed here
+    # (spec §3: aliases + validators for cross-version field names).
+    model_config = ConfigDict(populate_by_name=True)
+
     id: Optional[int] = Field(None, description="Upload id of the upload.")
-    uploadName: Optional[str] = Field(None, description="Display name of the upload.")
+    uploadName: Optional[str] = Field(
+        None,
+        validation_alias=AliasChoices("uploadName", "uploadname"),
+        description="Display name of the upload.",
+    )
     assignee: Optional[int] = Field(None, description="assignee id of the upload.")
     mainLicense: Optional[str] = Field(
         None, description="Main license selected on the upload."
@@ -329,8 +346,15 @@ class LicenseCount(BaseModel):
 
 
 class License(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     id: Optional[int] = Field(None, description="Id key")
-    shortName: str = Field(..., description="Short name of the license", example="GPL-2.0")
+    shortName: str = Field(
+        ...,
+        validation_alias=AliasChoices("shortName", "shortname"),
+        description="Short name of the license",
+        example="GPL-2.0",
+    )
     fullName: str = Field(..., description="Full name of the license", example="GNU General Public License 2.0")
     text: str = Field(..., description="Full text of the license")
     url: Optional[str] = Field(None, description="URL to the license text")
@@ -620,7 +644,11 @@ class Upload(BaseModel):
     )
     id: Optional[int] = Field(None, description="Upload id of the upload.")
     description: Optional[str] = Field(None, description="Description of the upload.")
-    uploadname: Optional[str] = Field(None, description="Display name of the upload.")
+    uploadname: Optional[str] = Field(
+        None,
+        validation_alias=AliasChoices("uploadname", "uploadName"),
+        description="Display name of the upload.",
+    )
     uploaddate: Optional[str] = Field(
         None, description="Date, when the file was uploaded."
     )

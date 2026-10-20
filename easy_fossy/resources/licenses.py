@@ -1,6 +1,7 @@
 from typing import List, Optional, Any
 from .base import Resource
 from ..models import License, LicenseCount
+from ..transport import check
 
 class LicensesResource(Resource):
     @property
@@ -38,61 +39,39 @@ class LicensesResource(Resource):
         return self._request("POST", json=payload)
 
     def get_histogram(self, upload_id: int, agent_id: Optional[int] = None) -> List[LicenseCount]:
-        """Get license histogram for an upload.
-        FOSSology contract: GET /uploads/{id}/licenses/histogram
-        """
-        params = {}
-        if agent_id is not None:
-            params["agentId"] = str(agent_id)
-        data = self._request("GET", path=f"/uploads/{upload_id}/licenses/histogram", params=params, absolute_path=True)
+        """Get license histogram for an upload (delegates to UploadsResource,
+        which owns GET /uploads/{id}/licenses/histogram)."""
+        data = self.client.uploads.get_license_histogram(upload_id, agent_id)
         return [LicenseCount(**lc) for lc in data] if isinstance(data, list) else []
+
+    def _import_multipart(self, path: str, field: str, file_path: str, extra: Optional[dict] = None):
+        from requests_toolbelt.multipart.encoder import MultipartEncoder
+
+        file_name = file_path.split("/")[-1]
+        fields = dict(extra or {})
+        with open(file_path, "rb") as fh:
+            fields[field] = (file_name, fh, None)
+            m = MultipartEncoder(fields=fields)
+            response = check(self._send("POST", path, headers={"Content-Type": m.content_type}, data=m))
+        return response.json() if response.content else None
 
     def import_csv(self, file_path: str, delimiter: str = ",", enclosure: str = '"'):
         """Import licenses from CSV.
         FOSSology contract: POST /license/import-csv (multipart, field ``file_input``).
         """
-        import requests
-        from requests_toolbelt.multipart.encoder import MultipartEncoder
-
-        fields = {
-            "file_input": (file_path.split("/")[-1], open(file_path, "rb"), None),
-            "delimiter": delimiter,
-            "enclosure": enclosure,
-        }
-        m = MultipartEncoder(fields=fields)
-
-        response = self.session.post(
-            f"{self.client.url}{self.base_path}/import-csv",
-            data=m,
-            headers={"Content-Type": m.content_type},
-        )
-        return response.json() if response.status_code in (200, 201) else None
+        return self._import_multipart("/import-csv", "file_input", file_path, {"delimiter": delimiter, "enclosure": enclosure})
 
     def export_csv(self):
         """Export licenses to CSV.
         FOSSology contract: GET /license/export-csv returns text/csv (not JSON).
         """
-        response = self.session.get(f"{self.client.url}{self.base_path}/export-csv")
-        if response.status_code in (200, 201):
-            return response.text
-        return None
+        return check(self._send("GET", "/export-csv")).text
 
     def import_json(self, file_path: str):
         """Import licenses from a JSON file.
         FOSSology contract: POST /license/import-json (multipart, field ``fileInput``).
         """
-        import requests
-        from requests_toolbelt.multipart.encoder import MultipartEncoder
-
-        fields = {"fileInput": (file_path.split("/")[-1], open(file_path, "rb"), None)}
-        m = MultipartEncoder(fields=fields)
-
-        response = self.session.post(
-            f"{self.client.url}{self.base_path}/import-json",
-            data=m,
-            headers={"Content-Type": m.content_type},
-        )
-        return response.json() if response.status_code in (200, 201) else None
+        return self._import_multipart("/import-json", "fileInput", file_path)
 
     def export_json(self):
         """Export licenses to JSON"""

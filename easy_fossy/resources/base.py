@@ -1,43 +1,40 @@
+"""Base resource: one URL rule, one request helper, no escape hatches.
+
+A resource owns exactly the endpoints under its ``base_path``. When it needs an
+endpoint owned by another resource, it calls that resource's interface.
+"""
+
 from typing import Any, Optional
-import requests
+
 from ..config import FossyConfig
-from ..exceptions import FossyAPIError, FossyAuthError, FossyConnectionError
+from ..transport import check
+
 
 class Resource:
     def __init__(self, client):
         self.client = client
         self.config: FossyConfig = client.config
-        self.session = client.session
+
+    @property
+    def transport(self):
+        """Read through the client so a swapped transport (tests) takes effect."""
+        return self.client.transport
 
     @property
     def base_path(self) -> str:
         """Override this in subclasses to define the resource endpoint"""
         return ""
 
-    def _request(self, method: str, path: str = "", params: Optional[dict] = None, data: Any = None, json: Any = None, absolute_path: bool = False, **kwargs) -> Any:
-        # absolute_path=True means path is relative to the API root (not the resource base_path)
-        if absolute_path:
-            url = f"{self.client.url.rstrip('/')}/{path.lstrip('/')}"
-        else:
-            url = f"{self.client.url.rstrip('/')}/{self.base_path}/{path.lstrip('/')}"
-        if url.endswith("/"):
-            url = url[:-1]
+    def _send(self, method: str, path: str = "", **kwargs):
+        """Send a request owned by this resource and return the raw response."""
+        relative = f"{self.base_path}/{path.lstrip('/')}" if path else self.base_path
+        return self.transport.request(method, relative, **kwargs)
 
-        try:
-            response = self.session.request(
-                method=method,
-                url=url,
-                params=params,
-                data=data,
-                json=json,
-                **kwargs
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.HTTPError as e:
-            status_code = e.response.status_code
-            if status_code in (401, 403):
-                raise FossyAuthError(f"Authentication failed: {e.response.text}", status_code, e.response.text)
-            raise FossyAPIError(f"API request failed: {e.response.text}", status_code, e.response.text)
-        except requests.exceptions.RequestException as e:
-            raise FossyConnectionError(f"Connection error: {str(e)}")
+    def _request(self, method: str, path: str = "", params: Optional[dict] = None, json: Any = None, headers: Optional[dict] = None) -> Any:
+        """Send a request and decode a JSON body; raises the domain exception on failure.
+
+        An empty body (204, or a 200 with no content) decodes to ``None`` rather
+        than raising a JSON error.
+        """
+        response = check(self._send(method, path, params=params, json=json, headers=headers))
+        return response.json() if response.content else None

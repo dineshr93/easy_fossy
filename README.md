@@ -54,7 +54,7 @@ pip install .
 
 ## Hermes Agent Skill (reusable)
 
-The repo ships a standalone Hermes skill at `skills/fossy/` — a self-contained reference for driving the FOSSology REST API through `easy_fossy`, covering all 63 resource functions plus secure token management for AI subagents. It works even where `easy_fossy` is not installed (you can replicate any call with `curl`/`requests`).
+The repo ships a standalone Hermes skill at `skills/fossy/` — a self-contained reference for driving the FOSSology REST API through `easy_fossy`, covering all 78 resource functions plus secure token management for AI subagents. It works even where `easy_fossy` is not installed (you can replicate any call with `curl`/`requests`).
 
 ### Install from this repo (Hermes CLI)
 
@@ -92,9 +92,21 @@ pip install path/to/easy_fossy-2.5.0-py3-none-any.whl
 
 ## Running the Test Suite
 
-The test suite (`tests/`) exercises **every public API function** against a **live FOSSology instance**. It is driven entirely by environment variables — the same ones the client reads — and is skipped (not failed) in CI when those variables are absent.
+The suite has two layers:
 
-### 1. Set the environment variables
+- **Offline suite (default)** — every resource and workflow runs through the transport seam against an in-memory stub session: no instance, no network, ~0.1 s. This is what CI runs.
+- **Live suite (`pytest -m live`)** — the same methods against a real FOSSology instance, driven by the `FOSSY_*` environment variables. Skipped (not failed) when they are absent.
+
+### 1. Offline suite
+
+```bash
+poetry install
+poetry run pytest
+```
+
+### 2. Live suite
+
+Set the environment variables (the same ones the client reads):
 
 ```bash
 export FOSSY_URL="http://fossology.com:port/repo/api/v1/"
@@ -104,30 +116,17 @@ export FOSSY_ACCESS="write"
 export FOSSY_VERIFY="false"
 ```
 
-Required: `FOSSY_URL`, `FOSSY_BEARER_TOKEN`, `FOSSY_TOKEN_EXPIRE`. Optional: `FOSSY_ACCESS`, `FOSSY_VERIFY`. If the required ones are missing, the suite is skipped rather than failing, so it is safe to run in CI where a live instance may not exist.
-
-### 2. Install dependencies
+Required: `FOSSY_URL`, `FOSSY_BEARER_TOKEN`, `FOSSY_TOKEN_EXPIRE`. Optional: `FOSSY_ACCESS`, `FOSSY_VERIFY`. If the required ones are missing, the live tests skip rather than fail.
 
 ```bash
-poetry install
+poetry run pytest -m live
 ```
 
-### 3. Run the suite
+Run a single live test file, or a single test by name:
 
 ```bash
-poetry run pytest
-```
-
-Run a single test file:
-
-```bash
-poetry run pytest tests/test_uploads.py
-```
-
-Run a single test by name:
-
-```bash
-poetry run pytest tests/test_uploads.py -k "trigger"
+poetry run pytest -m live tests/test_uploads.py
+poetry run pytest -m live tests/test_uploads.py -k "trigger"
 ```
 
 > **Note:** Prefer `poetry run pytest` over `make test`. The `make test` target uninstalls/reinstalls the package via `pip3` against the system Python, which fails with a PEP 668 "externally-managed-environment" error on most modern distros.
@@ -151,11 +150,13 @@ uname = your_username
 pwd = your_password
 access = write
 bearer_token = Bearer YOUR_TOKEN_HERE
-token_valdity_days = 365
+token_validity_days = 365
 token_expire = 2026-09-09
 reports_location = reports/
 group_name = fossy
 ```
+
+> `token_valdity_days` (the historical typo) is still accepted from existing ini files and env vars, but new writes use `token_validity_days`.
 
 **2. Kickstart**
 
@@ -198,7 +199,7 @@ client = FossyClient.from_env(verify=False)
 
 ## API Coverage
 
-`easy_fossy` provides **61 public API functions** across 6 resource modules, covering the core FOSSology REST API operations (uploads, folders, groups, jobs, licenses, users).
+`easy_fossy` provides **78 public API functions** across 6 resource modules, covering the core FOSSology REST API operations (uploads, folders, groups, jobs, licenses, users).
 
 ### Modular Architecture
 The client is organized into **Resource** modules for better discoverability. You access API methods through these resource objects:
@@ -209,6 +210,8 @@ The client is organized into **Resource** modules for better discoverability. Yo
 - `client.licenses` - License management
 - `client.users` - User management
 - `client.groups` - Group management
+
+One `Transport` module (`easy_fossy/transport.py`) builds every URL, maps status codes onto the exception hierarchy, and fetches the bearer token lazily on the first request. Constructing a client performs no I/O; tests swap the transport's session for an in-memory stub.
 
 #### Available Functions
 
@@ -221,6 +224,17 @@ The client is organized into **Resource** modules for better discoverability. Yo
 - `delete_uploads_by_upload_id(upload_id)`: Delete an upload.
 - `get_upload_tree_id_by_upload_id(upload_id)`: Get the top-level item ID for an upload.
 - `get_copyrights_by_upload_id_uploadtree_id(upload_id, upload_tree_id)`: Get copyrights for a specific item.
+- `get_all_uploads(folder_id=None, page=1, limit=100)`: List uploads, optionally by folder.
+- `get_copyrights(upload_id)`: Get every copyright finding for an upload.
+- `get_clearing_progress_info(upload_id)`: Clearing progress for an upload.
+- `get_clearing_history(upload_id, item_id)`: Clearing history for one upload item.
+- `get_agents_by_upload_id(upload_id)`: Agents that ran on an upload.
+- `get_revisions_for_agents(upload_id)`: Agent revisions for an upload.
+- `get_all_edited(upload_id)`: Licenses with a clearing decision.
+- `get_all_scanned(upload_id)`: Licenses found by scanners.
+- `get_reuse_summary(upload_id)`: License reuse summary.
+- `get_license_histogram(upload_id, agent_id=None)`: License histogram (owned here, `client.licenses.get_histogram` delegates).
+- `run_one_shot_nomos(file_path)` / `run_one_shot_monk(file_path)` / `run_one_shot_ceu(file_path)`: Scan a local file without uploading.
 
 **Folders (`client.folders`)**
 - `get_all()`: List all folders.
@@ -252,15 +266,17 @@ The client is organized into **Resource** modules for better discoverability. Yo
 - `handle_scheduler_run(payload)`: Handle scheduler run.
 - `get_statistics()`: Get job statistics.
 - `get_all_server_jobs()`: Get all server jobs.
+- `schedule_analysis(upload_id, folder_id, analysis=None)`: Schedule an analysis run for an upload.
+- `schedule_agent(upload_id, agents, folder_id=None)`: Schedule one job per named agent (folder looked up when omitted).
 
 **Licenses (`client.licenses`)**
 - `get_all(is_active="true", license_kind="main", page=1, limit=100)`: List licenses based on criteria.
 - `get_by_short_name(short_name)`: Get license by short name.
 - `add(unique_short_name, new_full_name, new_license_text, new_url, new_risk, isCandidate=True)`: Add a new license.
-- `get_histogram(upload_id)`: Get license histogram for an upload.
+- `get_histogram(upload_id, agent_id=None)`: Get license histogram for an upload (delegates to `client.uploads`).
 - `import_csv(file_path)`: Import licenses from CSV.
 - `export_csv()`: Export licenses to CSV.
-- `import_json(payload)`: Import licenses from JSON.
+- `import_json(file_path)`: Import licenses from a JSON file.
 - `export_json()`: Export licenses to JSON.
 - `update(short_name, payload)`: Update license info.
 - `get_admin_candidates()`: Get admin license candidates.
@@ -321,11 +337,23 @@ license_info = client.licenses.get_by_short_name(short_name='MIT')
 
 ## Business-Relevant Utility Functions
 
-The `easy_fossy/usecases.py` module provides 10 high-level workflows that combine multiple API calls into single, business-relevant operations.
+The `easy_fossy/usecases.py` module provides 10 high-level workflows that combine multiple API calls into single, business-relevant operations. They call only documented resource methods, and a failure raises `FossyAPIError` instead of returning a half-filled payload.
+
+- `full_package_scan_workflow(client, file_path, folder_id)` — upload, schedule scans, wait, return licenses + copyrights.
+- `license_audit_report(client, upload_id)` — edited vs scanned licenses, unmatched set, clearing progress.
+- `clearing_status_dashboard(client, upload_id)` — progress, agents, revisions, reuse in one payload.
+- `compliance_report_generation(client, upload_id, report_format="dep5")` — reuse summary plus the downloaded report bytes.
+- `user_audit_trail(client, user_id=None)` — user, jobs, groups.
+- `folder_inventory(client, folder_id, include_licenses=False)` — folder contents with per-upload licenses.
+- `package_analysis_summary(client, file_path)` — nomos, monk and CEU one-shot scans, no upload.
+- `license_candidate_review(client, acknowledge=None)` — admin candidates, acknowledgements, standard comments.
+- `job_dashboard_monitor(client, status_filter=None)` — jobs, statistics, server jobs.
+- `group_membership_audit(client)` — every group with its members.
 
 ```python
+from easy_fossy.client import FossyClient
 from easy_fossy.usecases import full_package_scan_workflow
 
-client = fossy('config.ini', 'test')
+client = FossyClient.from_env()
 result = full_package_scan_workflow(client, file_path='package.zip', folder_id=1)
 ```

@@ -1,12 +1,15 @@
 """Tests for the Licenses resource against the live FOSSology instance."""
+import pytest
+
 
 import os
 import time
 
-import pytest
-
+from stub import reaches_server
 from easy_fossy.exceptions import FossyAPIError
 
+
+pytestmark = pytest.mark.live
 
 def test_get_all_licenses(client):
     licenses = client.licenses.get_all()
@@ -89,7 +92,7 @@ def test_import_json(client, tmp_path):
     # that the endpoint is correctly wired (multipart fileInput).
     p = tmp_path / "license.json"
     p.write_text('[{"shortName": "SUITE_JSON_%d", "fullName": "Json License", "text": "t"}]' % (time.time_ns() % 10**6))
-    _reaches_server(lambda: client.licenses.import_json(str(p)))
+    reaches_server(lambda: client.licenses.import_json(str(p)))
 
 
 def test_import_csv_reaches_server(client, tmp_path):
@@ -102,33 +105,26 @@ def test_import_csv_reaches_server(client, tmp_path):
         "shortName,fullName,text,url,risk\n"
         f"SUITE_CSV_{time.time_ns() % 10**6},Suite CSV License,csv text,http://x,3\n"
     )
-    _reaches_server(lambda: client.licenses.import_csv(str(p)))
+    reaches_server(lambda: client.licenses.import_csv(str(p)))
 
 
 def test_delete_candidate_reaches_server(client):
     # The instance has no license candidates (get_admin_candidates -> []), so no
     # real candidate id exists. A non-existent id should yield a domain response
     # proving DELETE /license/admincandidates/{id} is wired.
-    _reaches_server(lambda: client.licenses.delete_candidate(999999))
+    reaches_server(lambda: client.licenses.delete_candidate(999999))
 
 
-def _reaches_server(fn):
-    """Run fn; True if it returned a value or raised a domain FossyAPIError
-    (proving the endpoint is wired). Network-level errors still fail."""
-    try:
-        return fn() is not None
-    except FossyAPIError:
-        return True
 
 
 def test_verify_reaches_server(client):
     # verify needs a parentShortname; MIT already exists so the domain rejects it,
     # but the endpoint must be wired (no 404).
-    _reaches_server(lambda: client.licenses.verify("MIT", parent_shortname="MIT"))
+    reaches_server(lambda: client.licenses.verify("MIT", parent_shortname="MIT"))
 
 
 def test_merge_reaches_server(client):
-    _reaches_server(lambda: client.licenses.merge("MIT", parent_shortname="MIT"))
+    reaches_server(lambda: client.licenses.merge("MIT", parent_shortname="MIT"))
 
 
 def test_suggest_reaches_server(client):
@@ -139,8 +135,8 @@ def test_suggest_reaches_server(client):
 
 def test_mutate_acknowledgement_reaches_server(client):
     # Empty instance has no acknowledgements to mutate; empty list is domain-rejected.
-    _reaches_server(lambda: client.licenses.mutate_acknowledgement([]))
+    reaches_server(lambda: client.licenses.mutate_acknowledgement([]))
 
 
 def test_mutate_std_comments_reaches_server(client):
-    _reaches_server(lambda: client.licenses.mutate_std_comments([]))
+    reaches_server(lambda: client.licenses.mutate_std_comments([]))

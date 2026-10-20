@@ -1,11 +1,13 @@
 """Tests for the Groups resource against the live FOSSology instance."""
+import pytest
+
 
 import time
 
-import pytest
-
 from easy_fossy.exceptions import FossyAPIError
 
+
+pytestmark = pytest.mark.live
 
 def test_get_all_groups(client):
     groups = client.groups.get_all()

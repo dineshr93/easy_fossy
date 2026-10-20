@@ -6,18 +6,18 @@ commented out below (the "OLD WAY"). The current library exposes the same
 capabilities through typed resources on the client (``f.users``, ``f.folders``,
 ``f.uploads``, ``f.jobs``, ``f.groups``, ``f.licenses``, ``f.reports``).
 
-Run with:  poetry run python example.py
+Run with:  poetry run python example.py   (reads FOSSY_* env vars; see README)
 """
 
 from easy_fossy import (
     ReportFormat,
     Agent,
 )
-from easy_fossy import easy_fossy as fossy
+from easy_fossy.client import FossyClient
 
 
 # Same client either way: the factory returns a FossyClient.
-f = fossy("config.ini", "test")
+f = FossyClient.from_env()
 
 
 # ---------------------------------------------------------------------------

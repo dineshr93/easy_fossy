@@ -25,8 +25,11 @@ pytest = "^9.0"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra"
+addopts = "-ra -m 'not live'"
 pythonpath = ["."]
+markers = [
+    "live: hits a real FOSSology instance via FOSSY_* env vars; run with -m live",
+]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

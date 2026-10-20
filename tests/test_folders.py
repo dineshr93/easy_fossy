@@ -1,7 +1,12 @@
 """Tests for the Folders resource against the live FOSSology instance."""
+import pytest
 
+
+from stub import reaches_server
 from easy_fossy.exceptions import FossyAPIError
 
+
+pytestmark = pytest.mark.live
 
 def test_get_all_returns_folders(client, folder_ids):
     folders = client.folders.get_all()
@@ -65,13 +70,6 @@ def test_unlink_content_reaches_server(client):
     # so there is no real content id to unlink. The endpoint must still be wired:
     # a non-existent content id should yield a domain response (FossyAPIError),
     # not a network/404-path error.
-    _reaches_server(lambda: client.folders.unlink_content(999999))
+    reaches_server(lambda: client.folders.unlink_content(999999))
 
 
-def _reaches_server(fn):
-    """Run fn; a returned value or any FossyAPIError (domain response) proves the
-    endpoint is wired. Network-level errors (FossyConnectionError) still fail."""
-    try:
-        return fn() is not None
-    except FossyAPIError:
-        return True

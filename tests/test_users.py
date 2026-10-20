@@ -1,12 +1,15 @@
 """Tests for the Users resource against the live FOSSology instance."""
+import pytest
+
 
 import datetime
 import time
 
-import pytest
-
+from stub import reaches_server
 from easy_fossy.exceptions import FossyAPIError
 
+
+pytestmark = pytest.mark.live
 
 def test_get_all_users(client):
     users = client.users.get_all()
@@ -53,13 +56,6 @@ def test_create_token_roundtrip(client):
     assert "token" in result or isinstance(result, dict)
 
 
-def _reaches_server(fn):
-    """Run fn; a returned value or any FossyAPIError (domain response) proves the
-    endpoint is wired. Network-level errors (FossyConnectionError) still fail."""
-    try:
-        return fn() is not None
-    except FossyAPIError:
-        return True
 
 
 def test_create_user_reaches_server(client):
@@ -72,14 +68,14 @@ def test_create_user_reaches_server(client):
         "email": f"{uname}@example.com",
         "defaultVisibility": "private",
     }
-    _reaches_server(lambda: client.users.create(payload))
+    reaches_server(lambda: client.users.create(payload))
 
 
 def test_update_user_reaches_server(client):
     # No deletable/updateable test user exists on the instance; a non-existent id
     # should yield a domain 404 (wired endpoint) rather than a network error.
-    _reaches_server(lambda: client.users.update(999999, {"description": "x"}))
+    reaches_server(lambda: client.users.update(999999, {"description": "x"}))
 
 
 def test_delete_user_reaches_server(client):
-    _reaches_server(lambda: client.users.delete(999999))
+    reaches_server(lambda: client.users.delete(999999))

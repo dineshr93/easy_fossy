@@ -1,9 +1,12 @@
 """Tests for the Uploads resource against the live FOSSology instance."""
-
 import pytest
 
+
+from stub import reaches_server
 from easy_fossy.exceptions import FossyAPIError
 
+
+pytestmark = pytest.mark.live
 
 def test_get_all_uploads(client, upload_ids):
     uploads = client.uploads.get_all_uploads()
@@ -35,7 +38,7 @@ def test_upload_by_url_reaches_server(client, temp_folder):
     # proves the POST /uploads uploadType=url endpoint is correctly wired rather
     # than requiring a successful upload.
     url = "https://raw.githubusercontent.com/psf/requests/main/LICENSE"
-    _reaches_server(lambda: client.uploads.upload_by_url(url=url, folder_id=temp_folder))
+    reaches_server(lambda: client.uploads.upload_by_url(url=url, folder_id=temp_folder))
 
 
 def test_upload_by_giturl_reaches_server(client, temp_folder):
@@ -43,7 +46,7 @@ def test_upload_by_giturl_reaches_server(client, temp_folder):
     # proves the POST /uploads uploadType=vcs endpoint is correctly wired rather
     # than requiring a successful upload.
     giturl = "https://github.com/psf/requests.git"
-    _reaches_server(lambda: client.uploads.upload_by_giturl(giturl=giturl, folder_id=temp_folder))
+    reaches_server(lambda: client.uploads.upload_by_giturl(giturl=giturl, folder_id=temp_folder))
 
 
 def test_get_upload_tree_id(client, upload_ids):
@@ -82,10 +85,3 @@ def test_trigger_analysis_schedules_job(client, temp_file, temp_folder):
     client.uploads.delete_uploads_by_upload_id(upload.id)
 
 
-def _reaches_server(fn):
-    """Run fn; True if it returned a value or raised a domain FossyAPIError
-    (proving the endpoint is wired). Network-level errors still fail."""
-    try:
-        return fn() is not None
-    except FossyAPIError:
-        return True
