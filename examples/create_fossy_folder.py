@@ -3,12 +3,17 @@
     <parent: PROJECT_NAME> / <PROJECT_NAME-dd-mm-yyyy>
 
 Usage:
-    python3 create_folder.py config.ini fossy_server PROJECT_NAME [--root-folder-id 1]
+    python3 create_fossy_folder.py config.ini fossy_server PROJECT_NAME [--root-folder-id 1]
 
 The id of the dated sub folder is printed as the LAST line of stdout, so a
 Jenkins shell step can capture it:
 
-    folder_id=$(python3 create_folder.py config.ini "$fossy_server" "$PROJECT_NAME" | tail -1)
+#create a folder under project name folder with date appended 
+folder_id=$(python3 create_fossy_folder.py "$config_file" "$fossy_server" "$PROJECT_NAME" | tail -1)
+if ! [[ "$folder_id" =~ ^[0-9]+$ ]]; then
+    echo "Failed to create/find fossy folder: '$folder_id'"
+    exit 1
+fi
 """
 
 import argparse
