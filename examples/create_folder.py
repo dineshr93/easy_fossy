@@ -15,7 +15,7 @@ import argparse
 import datetime
 import sys
 
-from easy_fossy import easy_fossy
+from easy_fossy import easy_fossy as fossy
 
 
 def find_folder(folders, name, parent_id):
@@ -37,14 +37,14 @@ def main() -> int:
     )
     args = ap.parse_args()
 
-    fossy = easy_fossy(config_file=args.config_file, server_to_use=args.server)
-    folders = fossy.get_all_folders() or []
+    use_fossy_to = fossy(args.config_file, args.server)
+    folders = use_fossy_to.get_all_folders() or []
 
     parent = find_folder(folders, args.project_name, args.root_folder_id)
     if parent:
         parent_id = parent.id
     else:
-        info = fossy.create_folder_under_parent_folder_id(
+        info = use_fossy_to.create_folder_under_parent_folder_id(
             args.root_folder_id, args.project_name
         )
         parent_id = int(info.message)
@@ -54,7 +54,7 @@ def main() -> int:
     if sub:
         folder_id = sub.id
     else:
-        info = fossy.create_folder_under_parent_folder_id(parent_id, sub_name)
+        info = use_fossy_to.create_folder_under_parent_folder_id(parent_id, sub_name)
         folder_id = int(info.message)
 
     print(folder_id)
